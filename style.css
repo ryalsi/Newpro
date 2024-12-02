@@ -58,3 +58,19 @@ body {
 .star:nth-child(even) {
     animation-duration: 3s;
 }
+
+/* Styling for the start button */
+.start-button {
+    padding: 15px 30px;
+    background-color: white;
+    color: red;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.start-button:hover {
+    background-color: #f0f0f0;
+}
