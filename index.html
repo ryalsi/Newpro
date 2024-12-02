@@ -35,6 +35,10 @@
         let playerY = canvas.height - playerHeight - 10;
         const playerSpeed = 5;
 
+        // Load the player image from the provided Pixabay URL
+        const playerImage = new Image();
+        playerImage.src = 'https://cdn.pixabay.com/photo/2023/01/04/14/24/image-7775824_960_720.png'; // Image URL from Pixabay
+
         // Game variables
         let isGameOver = false;
         let score = 0;
@@ -90,11 +94,8 @@
         }
 
         function drawPlayer() {
-            ctx.beginPath();
-            ctx.rect(playerX, playerY, playerWidth, playerHeight);
-            ctx.fillStyle = "#00F";
-            ctx.fill();
-            ctx.closePath();
+            // Draw the player image instead of the rectangle
+            ctx.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight);
         }
 
         function drawCoin() {
@@ -212,7 +213,10 @@
             requestAnimationFrame(draw);
         }
 
-        draw();
+        // Wait for the image to load before starting the game
+        playerImage.onload = function() {
+            draw(); // Start the game loop once the image is loaded
+        }
     </script>
 </body>
 </html>
