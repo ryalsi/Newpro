@@ -101,9 +101,6 @@
             width: 120px;
             box-sizing: border-box;
         }
-        .trophy span {
-            display: block;
-        }
         .trophy.gold {
             background-color: #FFD700;
         }
@@ -194,7 +191,7 @@
                 if (listItem.classList.contains("completed")) {
                     // Get appropriate trophy based on taskCompletionCount
                     const trophyName = getTrophyName(taskCompletionCount);
-                    trophy.innerText = trophyName;
+                    trophy.innerHTML = trophyName; // Set HTML content
                     trophy.style.display = "inline";
                 } else {
                     trophy.style.display = "none";
@@ -222,16 +219,19 @@
         }
 
         function getTrophyName(count) {
-            // Determine which trophy level the user is at
+            const trophyContainer = document.createElement('span');  // Create a span for the trophy text
+
             if (count <= 5) {
-                return `<span class="bronze">${trophies.Bronze[count - 1]}</span>`;
+                trophyContainer.innerHTML = `<span class="bronze">${trophies.Bronze[count - 1]}</span>`;  // Set HTML content
             } else if (count <= 10) {
-                return `<span class="silver">${trophies.Silver[count - 6]}</span>`;
+                trophyContainer.innerHTML = `<span class="silver">${trophies.Silver[count - 6]}</span>`;
             } else if (count <= 15) {
-                return `<span class="gold">${trophies.Gold[count - 11]}</span>`;
+                trophyContainer.innerHTML = `<span class="gold">${trophies.Gold[count - 11]}</span>`;
             } else {
-                return `<span class="platinum">${trophies.Platinum[count - 16]}</span>`;
+                trophyContainer.innerHTML = `<span class="platinum">${trophies.Platinum[count - 16]}</span>`;
             }
+
+            return trophyContainer.innerHTML;  // Return the HTML content to be inserted
         }
     </script>
 
