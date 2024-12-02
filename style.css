@@ -1,76 +1,18 @@
-/* General body styling */
 body {
-    background-color: red; /* Set background color to red */
-    margin: 0;
-    padding: 0;
-    height: 100vh; /* Ensure the background covers the full height of the viewport */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white; /* Set text color to white for contrast */
-    font-family: Arial, sans-serif;
-    text-align: center;
-    overflow: hidden; /* Prevent scrollbars */
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
 }
 
-/* Stars container */
-.stars {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Prevent interaction with the stars */
-}
-
-/* Individual star */
-.star {
-    position: absolute;
-    background-color: white;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    opacity: 0.8;
-    animation: twinkle 2s infinite ease-in-out;
-}
-
-/* Twinkling effect */
-@keyframes twinkle {
-    0% {
-        opacity: 0.8;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.4;
-        transform: scale(1.2);
-    }
-    100% {
-        opacity: 0.8;
-        transform: scale(1);
-    }
-}
-
-/* Optional: Different animation durations for odd/even stars */
-.star:nth-child(odd) {
-    animation-duration: 2s;
-}
-
-.star:nth-child(even) {
-    animation-duration: 3s;
-}
-
-/* Styling for the start button */
-.start-button {
-    padding: 15px 30px;
-    background-color: white;
-    color: red;
-    border: none;
-    border-radius: 5px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.start-button:hover {
-    background-color: #f0f0f0;
+#game-container {
+  width: 800px;
+  height: 600px;
+  background-color: #ffffff;
+  border: 2px solid black;
 }
