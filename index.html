@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Task Manager with Trophies</title>
+    <title>ChatGPT Chat</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
@@ -15,248 +15,91 @@
         h1 {
             text-align: center;
             color: #4CAF50;
-            font-size: 2.5rem;
-            margin-bottom: 20px;
         }
-        .task-container {
-            max-width: 650px;
+        .chat-container {
+            width: 80%;
             margin: 0 auto;
-            background-color: #fff;
-            padding: 30px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chat-box {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow-y: scroll;
         }
         input[type="text"] {
             width: 80%;
             padding: 12px;
-            margin: 15px 0;
+            margin-top: 20px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 16px;
-            outline: none;
-            box-sizing: border-box;
-        }
-        input[type="text"]:focus {
-            border-color: #4CAF50;
         }
         button {
-            padding: 12px 20px;
+            width: 80%;
+            padding: 12px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 6px;
             font-size: 18px;
             cursor: pointer;
-            width: 80%;
             margin-top: 10px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .task-list {
-            list-style-type: none;
-            padding: 0;
-            margin-top: 30px;
-        }
-        .task-item {
-            background-color: #f9f9f9;
-            padding: 20px;
-            margin: 10px 0;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .task-item.completed {
-            background-color: #e1f7d5;
-            text-decoration: none;
-        }
-        .task-item span {
-            font-size: 18px;
-            flex-grow: 1;
-        }
-        .task-item button {
-            padding: 8px 15px;
-            background-color: #f44336;
-            border-radius: 6px;
-            font-size: 14px;
-            color: white;
-            cursor: pointer;
-        }
-        .task-item button:hover {
-            background-color: #e53935;
-        }
-        .trophy {
-            font-size: 20px;
-            font-weight: bold;
-            color: #4CAF50;
-            display: none;
-            margin-left: 20px;
-            text-align: center;
-            background-color: #ffecb3;
-            padding: 10px;
-            border-radius: 6px;
-            width: 120px;
-            box-sizing: border-box;
-        }
-        .trophy.gold {
-            background-color: #FFD700;
-        }
-        .trophy.silver {
-            background-color: #C0C0C0;
-        }
-        .trophy.bronze {
-            background-color: #cd7f32;
-        }
-        .trophy.platinum {
-            background-color: #E5E4E2;
-        }
-        .chatgpt-message {
-            background-color: #f0f0f0;
-            color: #333;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Daily Task Manager with Trophies</h1>
-
-    <div class="task-container">
-        <input type="text" id="taskInput" placeholder="Add a new task..." />
-        <button onclick="addTask()">Add Task</button>
-
-        <ul id="taskList" class="task-list">
-            <!-- Tasks will appear here -->
-        </ul>
-
-        <div id="chatgptResponse" class="chatgpt-message" style="display: none;">
-            <!-- ChatGPT message will appear here -->
-        </div>
+    <h1>ChatGPT Chat</h1>
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox"></div>
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <button id="sendButton">Send</button>
     </div>
 
     <script>
-        const trophies = {
-            "Bronze": [
-                "Bronze Trophy 1 🥉",
-                "Bronze Trophy 2 🥉",
-                "Bronze Trophy 3 🥉",
-                "Bronze Trophy 4 🥉",
-                "Bronze Trophy 5 🥉"
-            ],
-            "Silver": [
-                "Silver Trophy 1 🥈",
-                "Silver Trophy 2 🥈",
-                "Silver Trophy 3 🥈",
-                "Silver Trophy 4 🥈",
-                "Silver Trophy 5 🥈"
-            ],
-            "Gold": [
-                "Gold Trophy 1 🏆",
-                "Gold Trophy 2 🏆",
-                "Gold Trophy 3 🏆",
-                "Gold Trophy 4 🏆",
-                "Gold Trophy 5 🏆"
-            ],
-            "Platinum": [
-                "Platinum Trophy 1 🏅",
-                "Platinum Trophy 2 🏅",
-                "Platinum Trophy 3 🏅",
-                "Platinum Trophy 4 🏅",
-                "Platinum Trophy 5 🏅"
-            ]
-        };
+        const sendButton = document.getElementById("sendButton");
+        const messageInput = document.getElementById("messageInput");
+        const chatBox = document.getElementById("chatBox");
 
-        let taskCompletionCount = 0; // To track number of completed tasks
-
-        function addTask() {
-            const taskInput = document.getElementById("taskInput");
-            const taskValue = taskInput.value.trim();
+        sendButton.addEventListener("click", async () => {
+            const message = messageInput.value.trim();
+            if (message === "") return;
             
-            if (taskValue === "") {
-                alert("Please enter a task!");
-                return;
-            }
+            // Display user message in the chat box
+            chatBox.innerHTML += `<div>User: ${message}</div>`;
+            messageInput.value = "";
 
-            const taskList = document.getElementById("taskList");
+            // Send message to the OpenAI API
+            const response = await fetch('https://api.openai.com/v1/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer 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`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'text-davinci-003',
+                    prompt: message,
+                    max_tokens: 100
+                })
+            });
 
-            const listItem = document.createElement("li");
-            listItem.classList.add("task-item");
+            const data = await response.json();
+            const reply = data.choices[0].text.trim();
+            chatBox.innerHTML += `<div>ChatGPT: ${reply}</div>`;
 
-            const taskText = document.createElement("span");
-            taskText.innerText = taskValue;
-
-            const completeButton = document.createElement("button");
-            completeButton.innerText = "Complete";
-            completeButton.onclick = function () {
-                taskCompletionCount++;
-                listItem.classList.toggle("completed");
-                completeButton.innerText = listItem.classList.contains("completed") ? "Undo" : "Complete";
-                
-                // Display trophy after each task completion
-                const trophy = listItem.querySelector(".trophy");
-                if (listItem.classList.contains("completed")) {
-                    // Get appropriate trophy based on taskCompletionCount
-                    const trophyName = getTrophyName(taskCompletionCount);
-                    trophy.innerHTML = trophyName; // Set HTML content
-                    trophy.style.display = "inline";
-                } else {
-                    trophy.style.display = "none";
-                }
-            };
-
-            const deleteButton = document.createElement("button");
-            deleteButton.innerText = "Delete";
-            deleteButton.onclick = function () {
-                taskList.removeChild(listItem);
-            };
-
-            const trophy = document.createElement("div");
-            trophy.classList.add("trophy");
-
-            listItem.appendChild(taskText);
-            listItem.appendChild(completeButton);
-            listItem.appendChild(deleteButton);
-            listItem.appendChild(trophy);
-
-            taskList.appendChild(listItem);
-
-            // Clear the input field after adding the task
-            taskInput.value = "";
-
-            // Trigger ChatGPT response after task is added
-            chatWithUser(taskValue);
-        }
-
-        function getTrophyName(count) {
-            const trophyContainer = document.createElement('span');  // Create a span for the trophy text
-
-            if (count <= 5) {
-                trophyContainer.innerHTML = `<span class="bronze">${trophies.Bronze[count - 1]}</span>`;  // Set HTML content
-            } else if (count <= 10) {
-                trophyContainer.innerHTML = `<span class="silver">${trophies.Silver[count - 6]}</span>`;
-            } else if (count <= 15) {
-                trophyContainer.innerHTML = `<span class="gold">${trophies.Gold[count - 11]}</span>`;
-            } else {
-                trophyContainer.innerHTML = `<span class="platinum">${trophies.Platinum[count - 16]}</span>`;
-            }
-
-            return trophyContainer.innerHTML;  // Return the HTML content to be inserted
-        }
-
-        function chatWithUser(task) {
-            const chatgptResponse = document.getElementById("chatgptResponse");
-            chatgptResponse.style.display = "block";  // Show ChatGPT message
-
-            // Simulate ChatGPT's response
-            chatgptResponse.innerHTML = `Great! You've added the task: <strong>${task}</strong>. Keep up the good work!`;
-        }
+            // Scroll to the bottom of the chat box
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
     </script>
 
 </body>
