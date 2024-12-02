@@ -1,48 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dodge the Falling Blocks</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.0/dist/phaser.js"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: #f0f0f0;
-    }
-
-    h1 {
-      position: absolute;
-      top: 20px;
-      width: 100%;
-      text-align: center;
-      font-size: 24px;
-      color: #333;
-    }
-
-    #game-container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-
-    canvas {
-      display: block;
-      background: #fff;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Platformer Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #87CEEB;
+        }
+        canvas {
+            display: block;
+            background-color: #fff;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-  <h1>Dodge the Falling Blocks</h1>
-  <div id="game-container"></div>
-  <script src="game.js"></script>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas dimensions
+        canvas.width = 800;
+        canvas.height = 600;
+
+        // Player settings
+        const playerWidth = 50;
+        const playerHeight = 50;
+        let playerX = canvas.width / 2 - playerWidth / 2;
+        let playerY = canvas.height - playerHeight - 10;
+        const playerSpeed = 5;
+
+        // Game variables
+        let rightPressed = false;
+        let leftPressed = false;
+        let isGameOver = false;
+        let score = 0;
+
+        // Coin settings
+        const coinWidth = 30;
+        const coinHeight = 30;
+        let coinX = Math.random() * (canvas.width - coinWidth);
+        let coinY = -coinHeight;
+        const coinSpeed = 3;
+
+        // Obstacle settings
+        const obstacleWidth = 50;
+        const obstacleHeight = 50;
+        let obstacleX = Math.random() * (canvas.width - obstacleWidth);
+        let obstacleY = -obstacleHeight;
+        const obstacleSpeed = 4;
+
+        // Event listeners for player controls
+        document.addEventListener('keydown', keyDownHandler, false);
+        document.addEventListener('keyup', keyUpHandler, false);
+
+        function keyDownHandler(e) {
+            if (e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = true;
+            } else if (e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = true;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if (e.key == "Right" || e.key == "ArrowRight") {
+                rightPressed = false;
+            } else if (e.key == "Left" || e.key == "ArrowLeft") {
+                leftPressed = false;
+            }
+        }
+
+        function drawPlayer() {
+            ctx.beginPath();
+            ctx.rect(playerX, playerY, playerWidth, playerHeight);
+            ctx.fillStyle = "#00F";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawCoin() {
+            ctx.beginPath();
+            ctx.rect(coinX, coinY, coinWidth, coinHeight);
+            ctx.fillStyle = "#FFD700";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawObstacle() {
+            ctx.beginPath();
+            ctx.rect(obstacleX, obstacleY, obstacleWidth, obstacleHeight);
+            ctx.fillStyle = "#FF0000";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function detectCollisions() {
+            // Check collision with coin
+            if (playerX < coinX + coinWidth &&
+                playerX + playerWidth > coinX &&
+                playerY < coinY + coinHeight &&
+                playerY + playerHeight > coinY) {
+                score++;
+                coinY = -coinHeight; // Reset coin
+                coinX = Math.random() * (canvas.width - coinWidth); // New random position
+            }
+
+            // Check collision with obstacle
+            if (playerX < obstacleX + obstacleWidth &&
+                playerX + playerWidth > obstacleX &&
+                playerY < obstacleY + obstacleHeight &&
+                playerY + playerHeight > obstacleY) {
+                isGameOver = true;
+            }
+        }
+
+        function movePlayer() {
+            if (rightPressed && playerX < canvas.width - playerWidth) {
+                playerX += playerSpeed;
+            }
+            if (leftPressed && playerX > 0) {
+                playerX -= playerSpeed;
+            }
+        }
+
+        function moveCoin() {
+            coinY += coinSpeed;
+            if (coinY > canvas.height) {
+                coinY = -coinHeight;
+                coinX = Math.random() * (canvas.width - coinWidth); // Random new position
+            }
+        }
+
+        function moveObstacle() {
+            obstacleY += obstacleSpeed;
+            if (obstacleY > canvas.height) {
+                obstacleY = -obstacleHeight;
+                obstacleX = Math.random() * (canvas.width - obstacleWidth); // New random position
+            }
+        }
+
+        function drawScore() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = "#000";
+            ctx.fillText("Score: " + score, 8, 20);
+        }
+
+        function gameOver() {
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "#FF0000";
+            ctx.fillText("GAME OVER!", canvas.width / 2 - 100, canvas.height / 2);
+        }
+
+        function draw() {
+            if (isGameOver) {
+                gameOver();
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawCoin();
+            drawObstacle();
+            drawScore();
+            detectCollisions();
+            movePlayer();
+            moveCoin();
+            moveObstacle();
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
 </body>
 </html>
