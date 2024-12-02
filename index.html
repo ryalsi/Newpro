@@ -36,8 +36,6 @@
         const playerSpeed = 5;
 
         // Game variables
-        let rightPressed = false;
-        let leftPressed = false;
         let isGameOver = false;
         let score = 0;
 
@@ -56,23 +54,37 @@
         const obstacleSpeed = 4;
 
         // Event listeners for player controls
-        document.addEventListener('keydown', keyDownHandler, false);
-        document.addEventListener('keyup', keyUpHandler, false);
+        let touchStartX = 0;
+        let touchEndX = 0;
 
-        function keyDownHandler(e) {
-            if (e.key == "Right" || e.key == "ArrowRight") {
-                rightPressed = true;
-            } else if (e.key == "Left" || e.key == "ArrowLeft") {
-                leftPressed = true;
-            }
+        canvas.addEventListener('touchstart', touchStartHandler, false);
+        canvas.addEventListener('touchmove', touchMoveHandler, false);
+        canvas.addEventListener('touchend', touchEndHandler, false);
+
+        function touchStartHandler(e) {
+            touchStartX = e.changedTouches[0].pageX; // Store the starting touch position
         }
 
-        function keyUpHandler(e) {
-            if (e.key == "Right" || e.key == "ArrowRight") {
-                rightPressed = false;
-            } else if (e.key == "Left" || e.key == "ArrowLeft") {
-                leftPressed = false;
+        function touchMoveHandler(e) {
+            e.preventDefault(); // Prevent default action to avoid scroll
+            touchEndX = e.changedTouches[0].pageX; // Get the current touch position
+
+            // Determine the direction of movement based on touch position
+            if (touchEndX > touchStartX && playerX < canvas.width - playerWidth) {
+                // Move right
+                playerX += playerSpeed;
+            } else if (touchEndX < touchStartX && playerX > 0) {
+                // Move left
+                playerX -= playerSpeed;
             }
+
+            touchStartX = touchEndX; // Update the starting position for the next move
+        }
+
+        function touchEndHandler(e) {
+            // Reset the touch position when touch ends
+            touchStartX = 0;
+            touchEndX = 0;
         }
 
         function drawPlayer() {
@@ -119,15 +131,6 @@
             }
         }
 
-        function movePlayer() {
-            if (rightPressed && playerX < canvas.width - playerWidth) {
-                playerX += playerSpeed;
-            }
-            if (leftPressed && playerX > 0) {
-                playerX -= playerSpeed;
-            }
-        }
-
         function moveCoin() {
             coinY += coinSpeed;
             if (coinY > canvas.height) {
@@ -168,7 +171,6 @@
             drawObstacle();
             drawScore();
             detectCollisions();
-            movePlayer();
             moveCoin();
             moveObstacle();
 
