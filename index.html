@@ -44,14 +44,16 @@
         const coinHeight = 30;
         let coinX = Math.random() * (canvas.width - coinWidth);
         let coinY = -coinHeight;
-        const coinSpeed = 3;
+        const baseCoinSpeed = 3;
+        let coinSpeed = baseCoinSpeed;
 
         // Obstacle settings
         const obstacleWidth = 50;
         const obstacleHeight = 50;
         let obstacleX = Math.random() * (canvas.width - obstacleWidth);
         let obstacleY = -obstacleHeight;
-        const obstacleSpeed = 4;
+        const baseObstacleSpeed = 4;
+        let obstacleSpeed = baseObstacleSpeed;
 
         // Event listeners for player controls
         let touchStartX = 0;
@@ -147,10 +149,41 @@
             }
         }
 
+        // Increase the speed of obstacles and coins as the score increases
+        function increaseDifficulty() {
+            if (score % 10 === 0 && score > 0) {
+                obstacleSpeed += 0.5; // Speed up obstacles every 10 points
+                coinSpeed += 0.2;     // Speed up coins every 10 points
+            }
+        }
+
+        let scoreMultiplier = 1;
+        let multiplierDuration = 0;
+
+        // Function to activate score multiplier
+        function activateMultiplier() {
+            scoreMultiplier = 2;  // Double the score for a short period
+            multiplierDuration = 300; // Duration for multiplier (in frames)
+        }
+
+        // Update the score when collecting a coin
+        function collectCoin() {
+            score += 1 * scoreMultiplier;
+            coinY = -coinHeight; // Reset coin
+            coinX = Math.random() * (canvas.width - coinWidth); // New random position
+            multiplierDuration--;
+            if (multiplierDuration <= 0) {
+                scoreMultiplier = 1;  // Reset multiplier
+            }
+        }
+
         function drawScore() {
             ctx.font = "16px Arial";
             ctx.fillStyle = "#000";
             ctx.fillText("Score: " + score, 8, 20);
+            if (scoreMultiplier > 1) {
+                ctx.fillText("x" + scoreMultiplier, canvas.width - 100, 20);
+            }
         }
 
         function gameOver() {
@@ -165,74 +198,7 @@
                 return;
             }
 
-           // Increase the speed of obstacles and coins as the score increases
-const baseObstacleSpeed = 4;
-const baseCoinSpeed = 3;
-let obstacleSpeed = baseObstacleSpeed;
-let coinSpeed = baseCoinSpeed;
-
-// Function to increase difficulty over time
-function increaseDifficulty() {
-    if (score % 10 === 0 && score > 0) {
-        obstacleSpeed += 0.5; // Speed up obstacles every 10 points
-        coinSpeed += 0.2;     // Speed up coins every 10 points
-    }
-}
-
-// Modify the main game loop to call increaseDifficulty
-function draw() {
-    if (isGameOver) {
-        gameOver();
-        return;
-    }
-
-    increaseDifficulty(); // Increase difficulty based on score
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlayer();
-    drawCoin();
-    drawObstacle();
-    drawScore();
-    detectCollisions();
-    moveCoin();
-    moveObstacle();
-
-    requestAnimationFrame(draw);
-}
- 
-
-         let scoreMultiplier = 1;
-let multiplierDuration = 0;
-
-// Function to activate score multiplier
-function activateMultiplier() {
-    scoreMultiplier = 2;  // Double the score for a short period
-    multiplierDuration = 300; // Duration for multiplier (in frames)
-}
-
-// Update the score when collecting a coin
-function collectCoin() {
-    score += 1 * scoreMultiplier;
-    coinY = -coinHeight; // Reset coin
-    coinX = Math.random() * (canvas.width - coinWidth); // New random position
-    multiplierDuration--;
-    if (multiplierDuration <= 0) {
-        scoreMultiplier = 1;  // Reset multiplier
-    }
-}
-
-// Update the draw function to include score multiplier
-function drawScore() {
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#000";
-    ctx.fillText("Score: " + score, 8, 20);
-    if (scoreMultiplier > 1) {
-        ctx.fillText("x" + scoreMultiplier, canvas.width - 100, 20);
-    }
-}
-
-
-            
+            increaseDifficulty(); // Increase difficulty based on score
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawPlayer();
