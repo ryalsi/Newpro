@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager</title>
+    <title>Daily Task Manager with Trophies</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
@@ -88,11 +88,39 @@
         .task-item button:hover {
             background-color: #e53935;
         }
+        .trophy {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+            display: none;
+            margin-left: 20px;
+            text-align: center;
+            background-color: #ffecb3;
+            padding: 10px;
+            border-radius: 6px;
+            width: 120px;
+            box-sizing: border-box;
+        }
+        .trophy span {
+            display: block;
+        }
+        .trophy.gold {
+            background-color: #FFD700;
+        }
+        .trophy.silver {
+            background-color: #C0C0C0;
+        }
+        .trophy.bronze {
+            background-color: #cd7f32;
+        }
+        .trophy.platinum {
+            background-color: #E5E4E2;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Task Manager</h1>
+    <h1>Daily Task Manager with Trophies</h1>
 
     <div class="task-container">
         <input type="text" id="taskInput" placeholder="Add a new task..." />
@@ -104,37 +132,73 @@
     </div>
 
     <script>
-        // Add Task Function
+        const trophies = {
+            "Bronze": [
+                "Bronze Trophy 1 🥉",
+                "Bronze Trophy 2 🥉",
+                "Bronze Trophy 3 🥉",
+                "Bronze Trophy 4 🥉",
+                "Bronze Trophy 5 🥉"
+            ],
+            "Silver": [
+                "Silver Trophy 1 🥈",
+                "Silver Trophy 2 🥈",
+                "Silver Trophy 3 🥈",
+                "Silver Trophy 4 🥈",
+                "Silver Trophy 5 🥈"
+            ],
+            "Gold": [
+                "Gold Trophy 1 🏆",
+                "Gold Trophy 2 🏆",
+                "Gold Trophy 3 🏆",
+                "Gold Trophy 4 🏆",
+                "Gold Trophy 5 🏆"
+            ],
+            "Platinum": [
+                "Platinum Trophy 1 🏅",
+                "Platinum Trophy 2 🏅",
+                "Platinum Trophy 3 🏅",
+                "Platinum Trophy 4 🏅",
+                "Platinum Trophy 5 🏅"
+            ]
+        };
+
+        let taskCompletionCount = 0; // To track number of completed tasks
+
         function addTask() {
             const taskInput = document.getElementById("taskInput");
             const taskValue = taskInput.value.trim();
+            
             if (taskValue === "") {
                 alert("Please enter a task!");
                 return;
             }
 
             const taskList = document.getElementById("taskList");
-            const listItem = createTaskItem(taskValue);
-            taskList.appendChild(listItem);
-            taskInput.value = "";
-        }
 
-        // Create Task List Item
-        function createTaskItem(text, completed = false) {
             const listItem = document.createElement("li");
             listItem.classList.add("task-item");
-            if (completed) {
-                listItem.classList.add("completed");
-            }
 
             const taskText = document.createElement("span");
-            taskText.innerText = text;
+            taskText.innerText = taskValue;
 
             const completeButton = document.createElement("button");
-            completeButton.innerText = completed ? "Undo" : "Complete";
+            completeButton.innerText = "Complete";
             completeButton.onclick = function () {
+                taskCompletionCount++;
                 listItem.classList.toggle("completed");
                 completeButton.innerText = listItem.classList.contains("completed") ? "Undo" : "Complete";
+                
+                // Display trophy after each task completion
+                const trophy = listItem.querySelector(".trophy");
+                if (listItem.classList.contains("completed")) {
+                    // Get appropriate trophy based on taskCompletionCount
+                    const trophyName = getTrophyName(taskCompletionCount);
+                    trophy.innerText = trophyName;
+                    trophy.style.display = "inline";
+                } else {
+                    trophy.style.display = "none";
+                }
             };
 
             const deleteButton = document.createElement("button");
@@ -143,11 +207,31 @@
                 taskList.removeChild(listItem);
             };
 
+            const trophy = document.createElement("div");
+            trophy.classList.add("trophy");
+
             listItem.appendChild(taskText);
             listItem.appendChild(completeButton);
             listItem.appendChild(deleteButton);
+            listItem.appendChild(trophy);
 
-            return listItem;
+            taskList.appendChild(listItem);
+
+            // Clear the input field after adding the task
+            taskInput.value = "";
+        }
+
+        function getTrophyName(count) {
+            // Determine which trophy level the user is at
+            if (count <= 5) {
+                return `<span class="bronze">${trophies.Bronze[count - 1]}</span>`;
+            } else if (count <= 10) {
+                return `<span class="silver">${trophies.Silver[count - 6]}</span>`;
+            } else if (count <= 15) {
+                return `<span class="gold">${trophies.Gold[count - 11]}</span>`;
+            } else {
+                return `<span class="platinum">${trophies.Platinum[count - 16]}</span>`;
+            }
         }
     </script>
 
