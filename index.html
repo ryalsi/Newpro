@@ -6,39 +6,50 @@
     <title>Daily Task Manager with Trophies</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
+            color: #333;
         }
         h1 {
             text-align: center;
-            color: #333;
+            color: #4CAF50;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
         }
         .task-container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             background-color: #fff;
-            padding: 20px;
+            padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
         input[type="text"] {
             width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
             font-size: 16px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus {
+            border-color: #4CAF50;
         }
         button {
-            padding: 10px 15px;
+            padding: 12px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 18px;
             cursor: pointer;
+            width: 80%;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #45a049;
@@ -46,31 +57,64 @@
         .task-list {
             list-style-type: none;
             padding: 0;
+            margin-top: 30px;
         }
         .task-item {
             background-color: #f9f9f9;
-            padding: 10px;
+            padding: 20px;
             margin: 10px 0;
-            border-radius: 4px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .task-item.completed {
-            text-decoration: line-through;
-            background-color: #d3ffd3;
+            background-color: #e1f7d5;
+            text-decoration: none;
+        }
+        .task-item span {
+            font-size: 18px;
+            flex-grow: 1;
         }
         .task-item button {
+            padding: 8px 15px;
             background-color: #f44336;
+            border-radius: 6px;
+            font-size: 14px;
+            color: white;
+            cursor: pointer;
         }
         .task-item button:hover {
             background-color: #e53935;
         }
         .trophy {
-            display: none;
-            margin-left: 10px;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
+            color: #4CAF50;
+            display: none;
+            margin-left: 20px;
+            text-align: center;
+            background-color: #ffecb3;
+            padding: 10px;
+            border-radius: 6px;
+            width: 120px;
+            box-sizing: border-box;
+        }
+        .trophy span {
+            display: block;
+        }
+        .trophy.gold {
+            background-color: #FFD700;
+        }
+        .trophy.silver {
+            background-color: #C0C0C0;
+        }
+        .trophy.bronze {
+            background-color: #cd7f32;
+        }
+        .trophy.platinum {
+            background-color: #E5E4E2;
         }
     </style>
 </head>
@@ -180,13 +224,13 @@
         function getTrophyName(count) {
             // Determine which trophy level the user is at
             if (count <= 5) {
-                return trophies.Bronze[count - 1];
+                return `<span class="bronze">${trophies.Bronze[count - 1]}</span>`;
             } else if (count <= 10) {
-                return trophies.Silver[count - 6];
+                return `<span class="silver">${trophies.Silver[count - 6]}</span>`;
             } else if (count <= 15) {
-                return trophies.Gold[count - 11];
+                return `<span class="gold">${trophies.Gold[count - 11]}</span>`;
             } else {
-                return trophies.Platinum[count - 16];
+                return `<span class="platinum">${trophies.Platinum[count - 16]}</span>`;
             }
         }
     </script>
