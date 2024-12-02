@@ -23,7 +23,7 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
+
         // Set canvas dimensions
         canvas.width = 800;
         canvas.height = 600;
@@ -35,10 +35,6 @@
         let playerY = canvas.height - playerHeight - 10;
         const playerSpeed = 5;
 
-        // Load the player image from the provided Pixabay URL
-        const playerImage = new Image();
-        playerImage.src = 'https://www.istockphoto.com/photo/digital-data-tunnel-information-flow-gm2155769551-576565359?utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Flink&utm_medium=affiliate&utm_source=unsplash&utm_term=link%3A%3A%3A'; // Image URL from Pixabay
-
         // Game variables
         let isGameOver = false;
         let score = 0;
@@ -48,16 +44,14 @@
         const coinHeight = 30;
         let coinX = Math.random() * (canvas.width - coinWidth);
         let coinY = -coinHeight;
-        const baseCoinSpeed = 3;
-        let coinSpeed = baseCoinSpeed;
+        const coinSpeed = 3;
 
         // Obstacle settings
         const obstacleWidth = 50;
         const obstacleHeight = 50;
         let obstacleX = Math.random() * (canvas.width - obstacleWidth);
         let obstacleY = -obstacleHeight;
-        const baseObstacleSpeed = 4;
-        let obstacleSpeed = baseObstacleSpeed;
+        const obstacleSpeed = 4;
 
         // Event listeners for player controls
         let touchStartX = 0;
@@ -94,10 +88,11 @@
         }
 
         function drawPlayer() {
-            // Ensure the image is loaded before drawing
-            if (playerImage.complete) {
-                ctx.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight);
-            }
+            ctx.beginPath();
+            ctx.rect(playerX, playerY, playerWidth, playerHeight); // Draw player as a blue block
+            ctx.fillStyle = "#00F";
+            ctx.fill();
+            ctx.closePath();
         }
 
         function drawCoin() {
@@ -152,41 +147,10 @@
             }
         }
 
-        // Increase the speed of obstacles and coins as the score increases
-        function increaseDifficulty() {
-            if (score % 10 === 0 && score > 0) {
-                obstacleSpeed += 0.5; // Speed up obstacles every 10 points
-                coinSpeed += 0.2;     // Speed up coins every 10 points
-            }
-        }
-
-        let scoreMultiplier = 1;
-        let multiplierDuration = 0;
-
-        // Function to activate score multiplier
-        function activateMultiplier() {
-            scoreMultiplier = 2;  // Double the score for a short period
-            multiplierDuration = 300; // Duration for multiplier (in frames)
-        }
-
-        // Update the score when collecting a coin
-        function collectCoin() {
-            score += 1 * scoreMultiplier;
-            coinY = -coinHeight; // Reset coin
-            coinX = Math.random() * (canvas.width - coinWidth); // New random position
-            multiplierDuration--;
-            if (multiplierDuration <= 0) {
-                scoreMultiplier = 1;  // Reset multiplier
-            }
-        }
-
         function drawScore() {
             ctx.font = "16px Arial";
             ctx.fillStyle = "#000";
             ctx.fillText("Score: " + score, 8, 20);
-            if (scoreMultiplier > 1) {
-                ctx.fillText("x" + scoreMultiplier, canvas.width - 100, 20);
-            }
         }
 
         function gameOver() {
@@ -201,13 +165,11 @@
                 return;
             }
 
-            increaseDifficulty(); // Increase difficulty based on score
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
-            drawPlayer();
-            drawCoin();
-            drawObstacle();
-            drawScore();
+            drawPlayer(); // Draw the player as a blue block
+            drawCoin();   // Draw the coin
+            drawObstacle(); // Draw the obstacle
+            drawScore(); // Display the score
             detectCollisions();
             moveCoin();
             moveObstacle();
@@ -215,10 +177,7 @@
             requestAnimationFrame(draw); // Keep the game loop running
         }
 
-        // Wait for the image to load before starting the game
-        playerImage.onload = function() {
-            draw(); // Start the game loop once the image is loaded
-        }
+        draw(); // Start the game loop
 
     </script>
 </body>
