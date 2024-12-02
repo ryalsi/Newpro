@@ -94,8 +94,10 @@
         }
 
         function drawPlayer() {
-            // Draw the player image instead of the rectangle
-            ctx.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight);
+            // Ensure the image is loaded before drawing
+            if (playerImage.complete) {
+                ctx.drawImage(playerImage, playerX, playerY, playerWidth, playerHeight);
+            }
         }
 
         function drawCoin() {
@@ -201,7 +203,7 @@
 
             increaseDifficulty(); // Increase difficulty based on score
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
             drawPlayer();
             drawCoin();
             drawObstacle();
@@ -210,13 +212,14 @@
             moveCoin();
             moveObstacle();
 
-            requestAnimationFrame(draw);
+            requestAnimationFrame(draw); // Keep the game loop running
         }
 
         // Wait for the image to load before starting the game
         playerImage.onload = function() {
             draw(); // Start the game loop once the image is loaded
         }
+
     </script>
 </body>
 </html>
