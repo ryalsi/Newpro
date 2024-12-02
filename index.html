@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Task Manager with Trophies</title>
+    <title>Task Manager</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
@@ -88,46 +88,11 @@
         .task-item button:hover {
             background-color: #e53935;
         }
-        .trophy {
-            font-size: 20px;
-            font-weight: bold;
-            color: #4CAF50;
-            display: none;
-            margin-left: 20px;
-            text-align: center;
-            background-color: #ffecb3;
-            padding: 10px;
-            border-radius: 6px;
-            width: 120px;
-            box-sizing: border-box;
-        }
-        .trophy.gold {
-            background-color: #FFD700;
-        }
-        .trophy.silver {
-            background-color: #C0C0C0;
-        }
-        .trophy.bronze {
-            background-color: #cd7f32;
-        }
-        .trophy.platinum {
-            background-color: #E5E4E2;
-        }
-        .daily-challenge {
-            background-color: #fff3e0;
-            padding: 20px;
-            margin-top: 30px;
-            border-radius: 8px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        .daily-challenge button {
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
 
-    <h1>Daily Task Manager with Trophies</h1>
+    <h1>Task Manager</h1>
 
     <div class="task-container">
         <input type="text" id="taskInput" placeholder="Add a new task..." />
@@ -138,64 +103,7 @@
         </ul>
     </div>
 
-    <div id="dailyChallenge" class="daily-challenge" style="display:none;">
-        <h3>Today's Challenge:</h3>
-        <p id="challengeTask"></p>
-        <button onclick="completeChallenge()">Complete Challenge</button>
-    </div>
-
     <script>
-        const trophies = {
-            "Bronze": [
-                "Bronze Trophy 1 🥉",
-                "Bronze Trophy 2 🥉",
-                "Bronze Trophy 3 🥉",
-                "Bronze Trophy 4 🥉",
-                "Bronze Trophy 5 🥉"
-            ],
-            "Silver": [
-                "Silver Trophy 1 🥈",
-                "Silver Trophy 2 🥈",
-                "Silver Trophy 3 🥈",
-                "Silver Trophy 4 🥈",
-                "Silver Trophy 5 🥈"
-            ],
-            "Gold": [
-                "Gold Trophy 1 🏆",
-                "Gold Trophy 2 🏆",
-                "Gold Trophy 3 🏆",
-                "Gold Trophy 4 🏆",
-                "Gold Trophy 5 🏆"
-            ],
-            "Platinum": [
-                "Platinum Trophy 1 🏅",
-                "Platinum Trophy 2 🏅",
-                "Platinum Trophy 3 🏅",
-                "Platinum Trophy 4 🏅",
-                "Platinum Trophy 5 🏅"
-            ]
-        };
-
-        let taskCompletionCount = 0;
-        let taskPoints = 0;
-        let streak = 0;
-
-        // Load saved tasks from localStorage
-        document.addEventListener("DOMContentLoaded", loadTasks);
-        function loadTasks() {
-            const savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
-            const taskList = document.getElementById("taskList");
-
-            savedTasks.forEach(task => {
-                const listItem = createTaskItem(task.text, task.completed, task.trophy);
-                taskList.appendChild(listItem);
-            });
-
-            // Load streak and points
-            streak = JSON.parse(localStorage.getItem("streak")) || 0;
-            taskPoints = JSON.parse(localStorage.getItem("taskPoints")) || 0;
-        }
-
         // Add Task Function
         function addTask() {
             const taskInput = document.getElementById("taskInput");
@@ -209,13 +117,10 @@
             const listItem = createTaskItem(taskValue);
             taskList.appendChild(listItem);
             taskInput.value = "";
-
-            // Save to localStorage
-            saveTasks();
         }
 
         // Create Task List Item
-        function createTaskItem(text, completed = false, trophy = '') {
+        function createTaskItem(text, completed = false) {
             const listItem = document.createElement("li");
             listItem.classList.add("task-item");
             if (completed) {
@@ -228,96 +133,23 @@
             const completeButton = document.createElement("button");
             completeButton.innerText = completed ? "Undo" : "Complete";
             completeButton.onclick = function () {
-                taskCompletionCount++;
                 listItem.classList.toggle("completed");
                 completeButton.innerText = listItem.classList.contains("completed") ? "Undo" : "Complete";
-
-                const trophyDiv = listItem.querySelector(".trophy");
-                if (listItem.classList.contains("completed")) {
-                    const trophyName = getTrophyName(taskCompletionCount);
-                    trophyDiv.innerHTML = trophyName;
-                    trophyDiv.style.display = "inline";
-                    streak++;
-                    taskPoints += 10;
-                    saveTasks();
-                } else {
-                    trophyDiv.style.display = "none";
-                    streak = 0;
-                    saveTasks();
-                }
             };
 
             const deleteButton = document.createElement("button");
             deleteButton.innerText = "Delete";
             deleteButton.onclick = function () {
                 taskList.removeChild(listItem);
-                saveTasks();
             };
-
-            const trophyDiv = document.createElement("div");
-            trophyDiv.classList.add("trophy");
-            trophyDiv.innerHTML = trophy;
 
             listItem.appendChild(taskText);
             listItem.appendChild(completeButton);
             listItem.appendChild(deleteButton);
-            listItem.appendChild(trophyDiv);
 
             return listItem;
         }
-
-        // Save Tasks, Streaks, and Points to LocalStorage
-        function saveTasks() {
-            const taskList = document.getElementById("taskList");
-            const tasks = [];
-
-            taskList.querySelectorAll(".task-item").forEach(item => {
-                const text = item.querySelector("span").innerText;
-                const completed = item.classList.contains("completed");
-                const trophy = item.querySelector(".trophy").innerHTML;
-
-                tasks.push({ text, completed, trophy });
-            });
-
-            localStorage.setItem("tasks", JSON.stringify(tasks));
-            localStorage.setItem("streak", JSON.stringify(streak));
-            localStorage.setItem("taskPoints", JSON.stringify(taskPoints));
-        }
-
-        // Get Trophy Name based on Completion Count
-        function getTrophyName(completionCount) {
-            if (completionCount <= 5) {
-                return trophies.Bronze[completionCount - 1];
-            } else if (completionCount <= 10) {
-                return trophies.Silver[completionCount - 6];
-            } else if (completionCount <= 15) {
-                return trophies.Gold[completionCount - 11];
-            } else {
-                return trophies.Platinum[completionCount - 16];
-            }
-        }
-
-        // Display Daily Challenge
-        function displayDailyChallenge() {
-            const challenges = [
-                "Complete at least 3 tasks today!",
-                "Finish your most difficult task first!",
-                "Complete a task within 30 minutes"
-            ];
-            const challengeTask = challenges[Math.floor(Math.random() * challenges.length)];
-            document.getElementById("challengeTask").innerText = challengeTask;
-            document.getElementById("dailyChallenge").style.display = "block";
-        }
-
-        // Complete Daily Challenge
-        function completeChallenge() {
-            alert("Challenge Completed! You earned 10 extra points!");
-            taskPoints += 10;
-            saveTasks();
-        }
-
-        // Show Daily Challenge on Page Load
-        displayDailyChallenge();
     </script>
+
 </body>
 </html>
