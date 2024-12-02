@@ -3,29 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Red Background with Stars</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Daily Task Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .task-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .task-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-item.completed {
+            text-decoration: line-through;
+            background-color: #d3ffd3;
+        }
+        .task-item button {
+            background-color: #f44336;
+        }
+        .task-item button:hover {
+            background-color: #e53935;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="stars">
-        <!-- Randomly placed stars -->
-        <div class="star" style="top: 30%; left: 10%; animation-duration: 2s;"></div>
-        <div class="star" style="top: 60%; left: 20%; animation-duration: 3s;"></div>
-        <div class="star" style="top: 70%; left: 50%; animation-duration: 2.5s;"></div>
-        <div class="star" style="top: 80%; left: 80%; animation-duration: 3s;"></div>
-        <div class="star" style="top: 10%; left: 60%; animation-duration: 1.5s;"></div>
-        <div class="star" style="top: 40%; left: 40%; animation-duration: 2s;"></div>
-        <div class="star" style="top: 20%; left: 80%; animation-duration: 2s;"></div>
-        <div class="star" style="top: 90%; left: 15%; animation-duration: 3.5s;"></div>
-        <div class="star" style="top: 50%; left: 25%; animation-duration: 2s;"></div>
-        <div class="star" style="top: 70%; left: 90%; animation-duration: 2s;"></div>
+    <h1>Daily Task Manager</h1>
+
+    <div class="task-container">
+        <input type="text" id="taskInput" placeholder="Add a new task..." />
+        <button onclick="addTask()">Add Task</button>
+
+        <ul id="taskList" class="task-list">
+            <!-- Tasks will appear here -->
+        </ul>
     </div>
 
-    <h1>Welcome to My Starry Red Page!</h1>
+    <script>
+        function addTask() {
+            const taskInput = document.getElementById("taskInput");
+            const taskValue = taskInput.value.trim();
+            
+            if (taskValue === "") {
+                alert("Please enter a task!");
+                return;
+            }
 
-    <!-- Start button -->
-    <button onclick="window.location.href='newpage.html';" class="start-button">Start</button>
+            const taskList = document.getElementById("taskList");
+
+            const listItem = document.createElement("li");
+            listItem.classList.add("task-item");
+
+            const taskText = document.createElement("span");
+            taskText.innerText = taskValue;
+
+            const completeButton = document.createElement("button");
+            completeButton.innerText = "Complete";
+            completeButton.onclick = function () {
+                listItem.classList.toggle("completed");
+                completeButton.innerText = listItem.classList.contains("completed") ? "Undo" : "Complete";
+            };
+
+            const deleteButton = document.createElement("button");
+            deleteButton.innerText = "Delete";
+            deleteButton.onclick = function () {
+                taskList.removeChild(listItem);
+            };
+
+            listItem.appendChild(taskText);
+            listItem.appendChild(completeButton);
+            listItem.appendChild(deleteButton);
+
+            taskList.appendChild(listItem);
+
+            // Clear the input field after adding the task
+            taskInput.value = "";
+        }
+    </script>
 
 </body>
 </html>
