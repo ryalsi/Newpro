@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Task Manager with Rewards</title>
+    <title>Daily Task Manager with Trophies</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,41 +66,17 @@
         .task-item button:hover {
             background-color: #e53935;
         }
-        .medal {
+        .trophy {
             display: none;
             margin-left: 10px;
-        }
-        .task-item.completed .medal {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            background-color: gold;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
-            font-weight: bold;
-            color: white;
-        }
-        .task-item.completed .medal.level2 {
-            width: 40px;
-            height: 40px;
-            font-size: 14px;
-        }
-        .task-item.completed .medal.level3 {
-            width: 50px;
-            height: 50px;
-            font-size: 16px;
-        }
-        .task-item.completed .medal.level4 {
-            width: 60px;
-            height: 60px;
             font-size: 18px;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <h1>Daily Task Manager with Rewards</h1>
+    <h1>Daily Task Manager with Trophies</h1>
 
     <div class="task-container">
         <input type="text" id="taskInput" placeholder="Add a new task..." />
@@ -112,6 +88,37 @@
     </div>
 
     <script>
+        const trophies = {
+            "Bronze": [
+                "Bronze Trophy 1 🥉",
+                "Bronze Trophy 2 🥉",
+                "Bronze Trophy 3 🥉",
+                "Bronze Trophy 4 🥉",
+                "Bronze Trophy 5 🥉"
+            ],
+            "Silver": [
+                "Silver Trophy 1 🥈",
+                "Silver Trophy 2 🥈",
+                "Silver Trophy 3 🥈",
+                "Silver Trophy 4 🥈",
+                "Silver Trophy 5 🥈"
+            ],
+            "Gold": [
+                "Gold Trophy 1 🏆",
+                "Gold Trophy 2 🏆",
+                "Gold Trophy 3 🏆",
+                "Gold Trophy 4 🏆",
+                "Gold Trophy 5 🏆"
+            ],
+            "Platinum": [
+                "Platinum Trophy 1 🏅",
+                "Platinum Trophy 2 🏅",
+                "Platinum Trophy 3 🏅",
+                "Platinum Trophy 4 🏅",
+                "Platinum Trophy 5 🏅"
+            ]
+        };
+
         let taskCompletionCount = 0; // To track number of completed tasks
 
         function addTask() {
@@ -138,20 +145,15 @@
                 listItem.classList.toggle("completed");
                 completeButton.innerText = listItem.classList.contains("completed") ? "Undo" : "Complete";
                 
-                // Add or update the medal based on completion count
-                const medal = listItem.querySelector(".medal");
+                // Display trophy after each task completion
+                const trophy = listItem.querySelector(".trophy");
                 if (listItem.classList.contains("completed")) {
-                    if (taskCompletionCount % 4 === 0) {
-                        medal.classList.add("level4");
-                    } else if (taskCompletionCount % 3 === 0) {
-                        medal.classList.add("level3");
-                    } else if (taskCompletionCount % 2 === 0) {
-                        medal.classList.add("level2");
-                    } else {
-                        medal.classList.add("level1");
-                    }
+                    // Get appropriate trophy based on taskCompletionCount
+                    const trophyName = getTrophyName(taskCompletionCount);
+                    trophy.innerText = trophyName;
+                    trophy.style.display = "inline";
                 } else {
-                    medal.classList.remove("level1", "level2", "level3", "level4");
+                    trophy.style.display = "none";
                 }
             };
 
@@ -161,18 +163,31 @@
                 taskList.removeChild(listItem);
             };
 
-            const medal = document.createElement("div");
-            medal.classList.add("medal");
+            const trophy = document.createElement("div");
+            trophy.classList.add("trophy");
 
             listItem.appendChild(taskText);
             listItem.appendChild(completeButton);
             listItem.appendChild(deleteButton);
-            listItem.appendChild(medal);
+            listItem.appendChild(trophy);
 
             taskList.appendChild(listItem);
 
             // Clear the input field after adding the task
             taskInput.value = "";
+        }
+
+        function getTrophyName(count) {
+            // Determine which trophy level the user is at
+            if (count <= 5) {
+                return trophies.Bronze[count - 1];
+            } else if (count <= 10) {
+                return trophies.Silver[count - 6];
+            } else if (count <= 15) {
+                return trophies.Gold[count - 11];
+            } else {
+                return trophies.Platinum[count - 16];
+            }
         }
     </script>
 
