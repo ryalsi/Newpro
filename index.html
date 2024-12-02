@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Task Manager</title>
+    <title>Daily Task Manager with Rewards</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,11 +66,41 @@
         .task-item button:hover {
             background-color: #e53935;
         }
+        .medal {
+            display: none;
+            margin-left: 10px;
+        }
+        .task-item.completed .medal {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: gold;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            color: white;
+        }
+        .task-item.completed .medal.level2 {
+            width: 40px;
+            height: 40px;
+            font-size: 14px;
+        }
+        .task-item.completed .medal.level3 {
+            width: 50px;
+            height: 50px;
+            font-size: 16px;
+        }
+        .task-item.completed .medal.level4 {
+            width: 60px;
+            height: 60px;
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Daily Task Manager</h1>
+    <h1>Daily Task Manager with Rewards</h1>
 
     <div class="task-container">
         <input type="text" id="taskInput" placeholder="Add a new task..." />
@@ -82,6 +112,8 @@
     </div>
 
     <script>
+        let taskCompletionCount = 0; // To track number of completed tasks
+
         function addTask() {
             const taskInput = document.getElementById("taskInput");
             const taskValue = taskInput.value.trim();
@@ -102,8 +134,25 @@
             const completeButton = document.createElement("button");
             completeButton.innerText = "Complete";
             completeButton.onclick = function () {
+                taskCompletionCount++;
                 listItem.classList.toggle("completed");
                 completeButton.innerText = listItem.classList.contains("completed") ? "Undo" : "Complete";
+                
+                // Add or update the medal based on completion count
+                const medal = listItem.querySelector(".medal");
+                if (listItem.classList.contains("completed")) {
+                    if (taskCompletionCount % 4 === 0) {
+                        medal.classList.add("level4");
+                    } else if (taskCompletionCount % 3 === 0) {
+                        medal.classList.add("level3");
+                    } else if (taskCompletionCount % 2 === 0) {
+                        medal.classList.add("level2");
+                    } else {
+                        medal.classList.add("level1");
+                    }
+                } else {
+                    medal.classList.remove("level1", "level2", "level3", "level4");
+                }
             };
 
             const deleteButton = document.createElement("button");
@@ -112,9 +161,13 @@
                 taskList.removeChild(listItem);
             };
 
+            const medal = document.createElement("div");
+            medal.classList.add("medal");
+
             listItem.appendChild(taskText);
             listItem.appendChild(completeButton);
             listItem.appendChild(deleteButton);
+            listItem.appendChild(medal);
 
             taskList.appendChild(listItem);
 
