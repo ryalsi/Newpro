@@ -1,110 +1,94 @@
-let scene, camera, renderer, model;
-let loaderMap = {
-  'glb': new THREE.GLTFLoader(),
-  'gltf': new THREE.GLTFLoader(),
-  'obj': new THREE.OBJLoader(),
-  'stl': new THREE.STLLoader(),
-};
+const chatbotToggler = document.querySelector(".chatbot-toggler");
+const closeBtn = document.querySelector(".close-btn");
+const chatbox = document.querySelector(".chatbox");
+const chatInput = document.querySelector(".chat-input textarea");
+const sendChatBtn = document.querySelector(".chat-input span");
 
-// Initialize the Three.js scene
-function init() {
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, 500);
-  document.getElementById('viewer').appendChild(renderer.domElement);
+let userMessage = null; // Variable to store user's message
+const inputInitHeight = chatInput.scrollHeight;
 
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
-  scene.add(ambientLight);
+// API configuration
+const API_KEY = "AIzaSyCSJOLJoNw1P9f6HdezIfkaSrhLOSK5H7w"; // Your API key here
+const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(1, 1, 1).normalize();
-  scene.add(directionalLight);
-
-  // Camera position and controls
-  camera.position.z = 3;
-
-  // Start the animation loop
-  animate();
+const createChatLi = (message, className) => {
+  // Create a chat <li> element with passed message and className
+  const chatLi = document.createElement("li");
+  chatLi.classList.add("chat", `${className}`);
+  let chatContent = className === "outgoing" ? `<p></p>` : `<span class="material-symbols-outlined">smart_toy</span><p></p>`;
+  chatLi.innerHTML = chatContent;
+  chatLi.querySelector("p").textContent = message;
+  return chatLi; // return chat <li> element
 }
 
-// Render loop
-function animate() {
-  requestAnimationFrame(animate);
-  
-  if (model) {
-    model.rotation.x += 0.01;
-    model.rotation.y += 0.01;
+const generateResponse = async (chatElement) => {
+  const messageElement = chatElement.querySelector("p");
+
+  // Define the properties and message for the API request
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ 
+      contents: [{ 
+        role: "user", 
+        parts: [{ text: userMessage }] 
+      }] 
+    }),
   }
 
-  renderer.render(scene, camera);
+  // Send POST request to API, get response and set the reponse as paragraph text
+  try {
+    const response = await fetch(API_URL, requestOptions);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error.message);
+    
+    // Get the API response text and update the message element
+    messageElement.textContent = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '$1');
+  } catch (error) {
+    // Handle error
+    messageElement.classList.add("error");
+    messageElement.textContent = error.message;
+  } finally {
+    chatbox.scrollTo(0, chatbox.scrollHeight);
+  }
 }
 
-// Handle file upload and model loading
-document.getElementById('fileInput').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
+const handleChat = () => {
+  userMessage = chatInput.value.trim(); // Get user entered message and remove extra whitespace
+  if (!userMessage) return;
 
-  const fileExtension = file.name.split('.').pop().toLowerCase();
-  const reader = new FileReader();
+  // Clear the input textarea and set its height to default
+  chatInput.value = "";
+  chatInput.style.height = `${inputInitHeight}px`;
 
-  reader.onload = function(e) {
-    const content = e.target.result;
+  // Append the user's message to the chatbox
+  chatbox.appendChild(createChatLi(userMessage, "outgoing"));
+  chatbox.scrollTo(0, chatbox.scrollHeight);
 
-    // Remove any previous model from the scene
-    if (model) {
-      scene.remove(model);
-    }
+  setTimeout(() => {
+    // Display "Thinking..." message while waiting for the response
+    const incomingChatLi = createChatLi("Thinking...", "incoming");
+    chatbox.appendChild(incomingChatLi);
+    chatbox.scrollTo(0, chatbox.scrollHeight);
+    generateResponse(incomingChatLi);
+  }, 600);
+}
 
-    // Load the model based on its extension
-    load3DModel(fileExtension, content);
-  };
-
-  reader.readAsArrayBuffer(file); // Read file as binary data
+chatInput.addEventListener("input", () => {
+  // Adjust the height of the input textarea based on its content
+  chatInput.style.height = `${inputInitHeight}px`;
+  chatInput.style.height = `${chatInput.scrollHeight}px`;
 });
 
-// Load the 3D model based on its file type
-function load3DModel(extension, content) {
-  const loader = loaderMap[extension];
-
-  if (!loader) {
-    alert("Unsupported file format");
-    return;
+chatInput.addEventListener("keydown", (e) => {
+  // If Enter key is pressed without Shift key and the window 
+  // width is greater than 800px, handle the chat
+  if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+    e.preventDefault();
+    handleChat();
   }
+});
 
-  if (extension === 'obj') {
-    loader.load(
-      URL.createObjectURL(new Blob([content])),
-      function(obj) {
-        model = obj;
-        model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
-        model.position.set(0, 0, 0); // Center the model
-        scene.add(model);
-      },
-      undefined,
-      function(error) {
-        console.error('Error loading OBJ model:', error);
-      }
-    );
-  } else if (extension === 'stl') {
-    const geometry = loader.parse(content);
-    const material = new THREE.MeshStandardMaterial({ color: 0x999999 });
-    model = new THREE.Mesh(geometry, material);
-    model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
-    model.position.set(0, 0, 0); // Center the model
-    scene.add(model);
-  } else {
-    loader.parse(content, function(gltf) {
-      model = gltf.scene;
-      model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
-      model.position.set(0, 0, 0); // Center the model
-      scene.add(model);
-    }, undefined, function(error) {
-      console.error('Error loading glTF model:', error);
-    });
-  }
-}
-
-// Initialize the scene
-init();
+sendChatBtn.addEventListener("click", handleChat);
+closeBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
+chatbotToggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
