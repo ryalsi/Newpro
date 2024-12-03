@@ -64,6 +64,7 @@
         controls.dampingFactor = 0.25;
         controls.screenSpacePanning = true;
         controls.maxPolarAngle = Math.PI / 2; // Limit vertical rotation to avoid flipping
+        controls.enableZoom = false; // Disable zooming the entire scene
 
         // Add cube to the scene
         function addCube() {
@@ -108,6 +109,24 @@
         document.getElementById("addCube").addEventListener("click", addCube);
         document.getElementById("addCuboid").addEventListener("click", addCuboid);
         document.getElementById("addCone").addEventListener("click", addCone);
+
+        // Custom zoom behavior: Zoom only for objects using mouse wheel
+        window.addEventListener('wheel', (event) => {
+            event.preventDefault(); // Prevent default zoom behavior on the whole scene
+
+            const zoomFactor = 0.1; // Factor to control zoom speed
+            const zoomDelta = event.deltaY * zoomFactor; // Change in zoom level based on mouse wheel
+
+            // Zoom in/out objects based on the wheel direction
+            scene.traverse((object) => {
+                if (object instanceof THREE.Mesh) {
+                    object.scale.x += zoomDelta / 100;
+                    object.scale.y += zoomDelta / 100;
+                    object.scale.z += zoomDelta / 100;
+                    object.scale.clampScalar(0.1, 5); // Optional: Prevent objects from scaling too small or large
+                }
+            });
+        });
 
         // Rendering loop
         function render() {
