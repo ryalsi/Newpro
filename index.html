@@ -13,6 +13,7 @@
             left: 10px;
             z-index: 10;
             color: white;
+            font-family: Arial, sans-serif;
         }
         button {
             margin: 5px;
@@ -25,6 +26,11 @@
         button:hover {
             background-color: rgba(0, 0, 0, 0.8);
         }
+        input[type="color"] {
+            margin: 5px;
+            padding: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -33,6 +39,11 @@
         <button onclick="addCube()">Add Cube</button>
         <button onclick="addCuboid()">Add Cuboid</button>
         <button onclick="addCone()">Add Cone</button>
+        <br>
+        <input type="color" id="colorPicker" value="#ff0000"> <!-- Color picker for custom color -->
+        <button onclick="setPresetColor('red')">Preset Red</button>
+        <button onclick="setPresetColor('green')">Preset Green</button>
+        <button onclick="setPresetColor('blue')">Preset Blue</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -44,21 +55,23 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+        let currentColor = "#ff0000"; // Default color (red)
+
         camera.position.z = 5;
 
         // Add cube to the scene
         function addCube() {
             const geometry = new THREE.BoxGeometry();
-            const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+            const material = new THREE.MeshBasicMaterial({ color: currentColor });
             const cube = new THREE.Mesh(geometry, material);
-            cube.position.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1); // Random position
+            cube.position.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
             scene.add(cube);
         }
 
         // Add cuboid to the scene
         function addCuboid() {
             const geometry = new THREE.BoxGeometry(1, 2, 0.5); // Longer height for cuboid
-            const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+            const material = new THREE.MeshBasicMaterial({ color: currentColor });
             const cuboid = new THREE.Mesh(geometry, material);
             cuboid.position.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
             scene.add(cuboid);
@@ -67,10 +80,16 @@
         // Add cone to the scene
         function addCone() {
             const geometry = new THREE.ConeGeometry(0.5, 2, 32);
-            const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+            const material = new THREE.MeshBasicMaterial({ color: currentColor });
             const cone = new THREE.Mesh(geometry, material);
             cone.position.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
             scene.add(cone);
+        }
+
+        // Set the color based on color picker or preset
+        function setPresetColor(color) {
+            currentColor = color;
+            document.getElementById("colorPicker").value = color; // Update color picker with preset color
         }
 
         // Animation loop
@@ -94,6 +113,11 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
+        });
+
+        // Update the current color when the color picker is changed
+        document.getElementById("colorPicker").addEventListener("input", (event) => {
+            currentColor = event.target.value;
         });
     </script>
 
