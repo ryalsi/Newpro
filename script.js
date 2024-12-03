@@ -30,6 +30,17 @@ const generateResponse = async (chatElement) => {
   // Update the message element
   messageElement.textContent = responseText;
 
+  const requestOptions = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ 
+      contents: [{ 
+        role: "user", 
+        parts: [{ text: userMessage }] 
+      }] 
+    }),
+  }
+
   // Create a copy button element
   const copyBtn = document.createElement("button");
   copyBtn.classList.add("copy-btn");
@@ -41,29 +52,11 @@ const generateResponse = async (chatElement) => {
     copyBtn.textContent = "Copied!";
     setTimeout(() => {
       copyBtn.textContent = "Copy";
-    }, 1000); // Change button text back to "Copy" after 1 second
-  });
-
-  // Append the copy button to the chat message
-  chatElement.appendChild(copyBtn);
-
-  // ... existing code ...
-}
-
-const generateResponse = async (chatElement) => {
-  const messageElement = chatElement.querySelector("p");
-
-  // Define the properties and message for the API request
-  const requestOptions = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ 
-      contents: [{ 
-        role: "user", 
-        parts: [{ text: userMessage }] 
-      }] 
-    }),
+     }, 1000); // Change button text back to "Copy" after 1 secon
+    }] 
+   }),
   }
+
 
   // Send POST request to API, get response and set the reponse as paragraph text
   try {
