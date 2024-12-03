@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3D Model Viewer</title>
   <style>
     #viewer {
@@ -14,6 +16,10 @@
   <div id="viewer"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/loaders/GLTFLoader.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/loaders/OBJLoader.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/loaders/STLLoader.min.js"></script>
+
   <script>
     let scene, camera, renderer, model;
     let loaderMap = {
@@ -98,6 +104,9 @@
             model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
             model.position.set(0, 0, 0); // Center the model
             scene.add(model);
+
+            // Adjust camera position to fit the model
+            adjustCameraToFitModel(model);
           },
           undefined,
           function(error) {
@@ -111,16 +120,38 @@
         model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
         model.position.set(0, 0, 0); // Center the model
         scene.add(model);
+
+        // Adjust camera position to fit the model
+        adjustCameraToFitModel(model);
       } else {
         loader.parse(content, function(gltf) {
           model = gltf.scene;
           model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
           model.position.set(0, 0, 0); // Center the model
           scene.add(model);
+
+          // Adjust camera position to fit the model
+          adjustCameraToFitModel(model);
         }, undefined, function(error) {
           console.error('Error loading glTF model:', error);
         });
       }
+    }
+
+    // Function to adjust camera based on model's bounding box
+    function adjustCameraToFitModel(model) {
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const cameraDistance = maxDim / (2 * Math.tan( Math.PI * camera.fov / 360 ));
+      camera.position.set(center.x, center.y, cameraDistance);
+      camera.lookAt(center);
+
+      // Adjust aspect ratio for camera
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
     }
 
     // Initialize the scene
