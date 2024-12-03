@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battle Royale - Single Player</title>
+    <title>Battle Royale - Single Player (Mobile)</title>
     <style>
         body, html {
             margin: 0;
@@ -36,6 +36,40 @@
             font-size: 30px;
             color: red;
         }
+
+        /* Mobile virtual buttons */
+        .controls {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .control-btn {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 2px solid white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #shoot {
+            background-color: rgba(255, 0, 0, 0.6);
+        }
+
+        #moveLeft, #moveRight, #moveUp, #moveDown {
+            background-color: rgba(0, 255, 0, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -43,6 +77,15 @@
 <canvas id="gameCanvas" width="800" height="600"></canvas>
 <div id="score">Score: 0</div>
 <div id="gameOver" style="display: none;">Game Over</div>
+
+<!-- Virtual controls -->
+<div class="controls">
+    <div id="moveLeft" class="control-btn">←</div>
+    <div id="moveUp" class="control-btn">↑</div>
+    <div id="moveRight" class="control-btn">→</div>
+    <div id="moveDown" class="control-btn">↓</div>
+    <div id="shoot" class="control-btn">🔫</div>
+</div>
 
 <script>
     // Game Constants and Variables
@@ -59,37 +102,39 @@
     let playZoneX = 400, playZoneY = 300;
     let gameOver = false;
 
-    // Handle Movement Keys
-    let keys = { up: false, down: false, left: false, right: false, shoot: false };
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowUp') keys.up = true;
-        if (e.key === 'ArrowDown') keys.down = true;
-        if (e.key === 'ArrowLeft') keys.left = true;
-        if (e.key === 'ArrowRight') keys.right = true;
-        if (e.key === ' ') keys.shoot = true;
-    });
-    window.addEventListener('keyup', (e) => {
-        if (e.key === 'ArrowUp') keys.up = false;
-        if (e.key === 'ArrowDown') keys.down = false;
-        if (e.key === 'ArrowLeft') keys.left = false;
-        if (e.key === 'ArrowRight') keys.right = false;
-        if (e.key === ' ') keys.shoot = false;
-    });
+    // Virtual controls status
+    let controlKeys = { up: false, down: false, left: false, right: false, shoot: false };
+
+    // Virtual buttons event listeners
+    document.getElementById('moveUp').addEventListener('touchstart', () => controlKeys.up = true);
+    document.getElementById('moveUp').addEventListener('touchend', () => controlKeys.up = false);
+
+    document.getElementById('moveDown').addEventListener('touchstart', () => controlKeys.down = true);
+    document.getElementById('moveDown').addEventListener('touchend', () => controlKeys.down = false);
+
+    document.getElementById('moveLeft').addEventListener('touchstart', () => controlKeys.left = true);
+    document.getElementById('moveLeft').addEventListener('touchend', () => controlKeys.left = false);
+
+    document.getElementById('moveRight').addEventListener('touchstart', () => controlKeys.right = true);
+    document.getElementById('moveRight').addEventListener('touchend', () => controlKeys.right = false);
+
+    document.getElementById('shoot').addEventListener('touchstart', () => controlKeys.shoot = true);
+    document.getElementById('shoot').addEventListener('touchend', () => controlKeys.shoot = false);
 
     // Player movement
     function movePlayer() {
-        if (keys.up && player.y > 0) player.y -= player.speed;
-        if (keys.down && player.y < canvas.height - player.height) player.y += player.speed;
-        if (keys.left && player.x > 0) player.x -= player.speed;
-        if (keys.right && player.x < canvas.width - player.width) player.x += player.speed;
+        if (controlKeys.up && player.y > 0) player.y -= player.speed;
+        if (controlKeys.down && player.y < canvas.height - player.height) player.y += player.speed;
+        if (controlKeys.left && player.x > 0) player.x -= player.speed;
+        if (controlKeys.right && player.x < canvas.width - player.width) player.x += player.speed;
     }
 
     // Bullet creation and movement
     function shootBullet() {
-        if (keys.shoot && !gameOver) {
+        if (controlKeys.shoot && !gameOver) {
             const bullet = { x: player.x + player.width / 2, y: player.y, width: 5, height: 10, speed: 7 };
             bullets.push(bullet);
-            keys.shoot = false;
+            controlKeys.shoot = false;
         }
     }
 
