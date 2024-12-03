@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Geometry Demo</title>
+    <title>3D Geometry Demo on Mobile</title>
     <style>
-        body { margin: 0; overflow: hidden; }
+        body { margin: 0; overflow: hidden; touch-action: none; }
         canvas { display: block; }
-        .controls { position: absolute; top: 10px; left: 10px; z-index: 100; }
-        button { margin: 5px; }
+        .controls { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; }
+        button { margin: 5px; font-size: 14px; padding: 10px; }
         #colorPicker { margin-top: 10px; }
     </style>
 </head>
@@ -37,8 +37,8 @@
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('threeCanvas') });
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('threeCanvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight); // Set size based on screen size
             document.body.appendChild(renderer.domElement);
 
             // Add lighting
@@ -53,6 +53,7 @@
             controls.enableDamping = true;
             controls.dampingFactor = 0.25;
             controls.enableZoom = true;
+            controls.enableRotate = true; // Allow rotation with touch or mouse
 
             // Handle window resizing
             window.addEventListener('resize', onWindowResize, false);
