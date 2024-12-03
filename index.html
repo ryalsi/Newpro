@@ -41,9 +41,6 @@
         <button onclick="addCone()">Add Cone</button>
         <br>
         <input type="color" id="colorPicker" value="#ff0000"> <!-- Color picker for custom color -->
-        <button onclick="setPresetColor('red')">Preset Red</button>
-        <button onclick="setPresetColor('green')">Preset Green</button>
-        <button onclick="setPresetColor('blue')">Preset Blue</button>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -84,12 +81,6 @@
             const cone = new THREE.Mesh(geometry, material);
             cone.position.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
             scene.add(cone);
-        }
-
-        // Set the color based on color picker or preset
-        function setPresetColor(color) {
-            currentColor = color;
-            document.getElementById("colorPicker").value = color; // Update color picker with preset color
         }
 
         // Animation loop
