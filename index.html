@@ -12,6 +12,7 @@
             justify-content: center;
             align-items: center;
             background-color: #f0f0f0;
+            flex-direction: column;
         }
         #cone {
             width: 0;
@@ -23,11 +24,25 @@
             cursor: grab;
             transition: transform 0.2s;
         }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
     </style>
 </head>
 <body>
 
     <div id="cone"></div>
+    <button id="rotateBtn">Rotate Cone</button>
 
     <script>
         // Set up draggable behavior
@@ -56,9 +71,10 @@
             cone.style.cursor = 'grab';
         });
 
-        // Set up rotation effect
+        // Set up rotation effect on button click
         let rotation = 0;
-        cone.addEventListener('click', () => {
+        const rotateButton = document.getElementById('rotateBtn');
+        rotateButton.addEventListener('click', () => {
             rotation = (rotation + 45) % 360; // Rotate by 45 degrees on each click
             cone.style.transform = `rotate(${rotation}deg)`;
         });
