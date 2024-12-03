@@ -6,14 +6,17 @@
     <title>3D Geometry Demo on Mobile</title>
     <style>
         body { margin: 0; overflow: hidden; touch-action: none; }
-        canvas { display: block; }
-        .controls { position: absolute; top: 10px; left: 10px; z-index: 100; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; }
+        /* Make sure the canvas takes full screen */
+        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; }
+        /* Controls above the canvas */
+        .controls { position: absolute; top: 10px; left: 10px; z-index: 1; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; }
         button { margin: 5px; font-size: 14px; padding: 10px; }
         #colorPicker { margin-top: 10px; }
     </style>
 </head>
 <body>
 
+    <!-- The controls (buttons and color picker) -->
     <div class="controls">
         <button onclick="addGeometry('cube')">Add Cube</button>
         <button onclick="addGeometry('cuboid')">Add Cuboid</button>
