@@ -1,4 +1,3 @@
-// Global variables
 let scene, camera, renderer, model;
 let loaderMap = {
   'glb': new THREE.GLTFLoader(),
@@ -9,14 +8,13 @@ let loaderMap = {
 
 // Initialize the Three.js scene
 function init() {
-  // Create scene, camera, and renderer
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, 500);
   document.getElementById('viewer').appendChild(renderer.domElement);
 
-  // Add lighting
+  // Lighting
   const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
   scene.add(ambientLight);
 
@@ -24,17 +22,17 @@ function init() {
   directionalLight.position.set(1, 1, 1).normalize();
   scene.add(directionalLight);
 
-  // Set the camera position
+  // Camera position and controls
   camera.position.z = 3;
 
-  // Call the animate function
+  // Start the animation loop
   animate();
 }
 
-// Animation loop to rotate the model
+// Render loop
 function animate() {
   requestAnimationFrame(animate);
-
+  
   if (model) {
     model.rotation.x += 0.01;
     model.rotation.y += 0.01;
@@ -59,7 +57,7 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
       scene.remove(model);
     }
 
-    // Load the model based on the file extension
+    // Load the model based on its extension
     load3DModel(fileExtension, content);
   };
 
@@ -80,7 +78,8 @@ function load3DModel(extension, content) {
       URL.createObjectURL(new Blob([content])),
       function(obj) {
         model = obj;
-        model.scale.set(0.5, 0.5, 0.5); // Scale the model for better visibility
+        model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
+        model.position.set(0, 0, 0); // Center the model
         scene.add(model);
       },
       undefined,
@@ -92,12 +91,14 @@ function load3DModel(extension, content) {
     const geometry = loader.parse(content);
     const material = new THREE.MeshStandardMaterial({ color: 0x999999 });
     model = new THREE.Mesh(geometry, material);
-    model.scale.set(0.5, 0.5, 0.5);
+    model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
+    model.position.set(0, 0, 0); // Center the model
     scene.add(model);
   } else {
     loader.parse(content, function(gltf) {
       model = gltf.scene;
-      model.scale.set(0.5, 0.5, 0.5);
+      model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
+      model.position.set(0, 0, 0); // Center the model
       scene.add(model);
     }, undefined, function(error) {
       console.error('Error loading glTF model:', error);
