@@ -1,17 +1,29 @@
+<!DOCTYPE html>
 <html>
     <body>
-        <button onclick="showMessage()" type="button">add cube</button>
-    </body>
-    <script>
-        // Define a JavaScript function
-        function showMessage() 
-         // Add event listener after the DOM content is loaded
-        document.addEventListener("DOMContentLoaded", function() {
-            // Get the button element by ID and add event listener
-            const button = document.getElementById("myButton");
-            button.addEventListener("click", showMessage);
-        });   
-    
-    </script>
+        <!-- Add an ID to the button so it can be selected later -->
+        <button id="cube" type="button">Add Cube</button>
 
-</html>>
+        <div id="cubes-container"></div> <!-- Container for added cubes -->
+
+        <script>
+            // Define a JavaScript function that will be triggered on button click
+            function showMessage() {
+                const container = document.getElementById("cubes-container");
+                
+                // Create a new div to represent a cube
+                const cube = document.createElement("div");
+                cube.style.width = "50px";
+                cube.style.height = "50px";
+                cube.style.backgroundColor = "blue";
+                cube.style.margin = "10px";
+                
+                // Append the cube to the container
+                container.appendChild(cube);
+            }
+
+            // Add event listener to the button after the DOM content is loaded
+            document.getElementById("cube").addEventListener("click", showMessage);
+        </script>
+    </body>
+</html>
