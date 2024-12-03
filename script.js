@@ -1,45 +1,50 @@
-// Basic Three.js Setup
-let scene, camera, renderer;
-let model; // To store the loaded 3D model
+// Global variables
+let scene, camera, renderer, model;
+let loaderMap = {
+  'glb': new THREE.GLTFLoader(),
+  'gltf': new THREE.GLTFLoader(),
+  'obj': new THREE.OBJLoader(),
+  'stl': new THREE.STLLoader(),
+};
 
-// Initialize Three.js scene
+// Initialize the Three.js scene
 function init() {
+  // Create scene, camera, and renderer
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, 500);
   document.getElementById('viewer').appendChild(renderer.domElement);
 
-  // Add a simple light
-  const light = new THREE.AmbientLight(0x404040); // Ambient light
-  scene.add(light);
+  // Add lighting
+  const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+  scene.add(ambientLight);
 
-  // Add a directional light for better visibility
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(5, 5, 5).normalize();
+  directionalLight.position.set(1, 1, 1).normalize();
   scene.add(directionalLight);
 
-  // Position the camera
-  camera.position.z = 5;
+  // Set the camera position
+  camera.position.z = 3;
 
-  // Start the animation loop
+  // Call the animate function
   animate();
 }
 
-// Render loop
+// Animation loop to rotate the model
 function animate() {
   requestAnimationFrame(animate);
+
   if (model) {
     model.rotation.x += 0.01;
     model.rotation.y += 0.01;
   }
+
   renderer.render(scene, camera);
 }
 
-// Handle file upload and 3D model loading
-document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-
-function handleFileUpload(event) {
+// Handle file upload and model loading
+document.getElementById('fileInput').addEventListener('change', function(event) {
   const file = event.target.files[0];
   if (!file) return;
 
@@ -49,62 +54,56 @@ function handleFileUpload(event) {
   reader.onload = function(e) {
     const content = e.target.result;
 
-    // Remove any existing model in the scene
+    // Remove any previous model from the scene
     if (model) {
       scene.remove(model);
     }
 
-    // Load the model based on its extension
+    // Load the model based on the file extension
     load3DModel(fileExtension, content);
   };
 
-  // Read the file as binary
-  reader.readAsArrayBuffer(file);
-}
+  reader.readAsArrayBuffer(file); // Read file as binary data
+});
 
+// Load the 3D model based on its file type
 function load3DModel(extension, content) {
-  const loaderMap = {
-    'glb': new THREE.GLTFLoader(),
-    'gltf': new THREE.GLTFLoader(),
-    'obj': new THREE.OBJLoader(),
-    'stl': new THREE.STLLoader(),
-  };
-
   const loader = loaderMap[extension];
 
-  if (loader) {
-    if (extension === 'obj') {
-      loader.load(
-        URL.createObjectURL(new Blob([content])),
-        function(obj) {
-          model = obj;
-          model.scale.set(0.5, 0.5, 0.5); // Scale the model to make it visible
-          scene.add(model);
-        },
-        undefined,
-        function(error) {
-          console.error('Error loading .obj model:', error);
-        }
-      );
-    } else if (extension === 'stl') {
-      const geometry = loader.parse(content);
-      const material = new THREE.MeshStandardMaterial({ color: 0x999999 });
-      model = new THREE.Mesh(geometry, material);
-      model.scale.set(0.5, 0.5, 0.5); // Scale the model
-      scene.add(model);
-    } else {
-      loader.parse(content, function(gltf) {
-        model = gltf.scene;
-        model.scale.set(0.5, 0.5, 0.5); // Scale the model to fit the camera
+  if (!loader) {
+    alert("Unsupported file format");
+    return;
+  }
+
+  if (extension === 'obj') {
+    loader.load(
+      URL.createObjectURL(new Blob([content])),
+      function(obj) {
+        model = obj;
+        model.scale.set(0.5, 0.5, 0.5); // Scale the model for better visibility
         scene.add(model);
-      }, undefined, function(error) {
-        console.error('Error loading glTF model:', error);
-      });
-    }
+      },
+      undefined,
+      function(error) {
+        console.error('Error loading OBJ model:', error);
+      }
+    );
+  } else if (extension === 'stl') {
+    const geometry = loader.parse(content);
+    const material = new THREE.MeshStandardMaterial({ color: 0x999999 });
+    model = new THREE.Mesh(geometry, material);
+    model.scale.set(0.5, 0.5, 0.5);
+    scene.add(model);
   } else {
-    alert("Unsupported file format.");
+    loader.parse(content, function(gltf) {
+      model = gltf.scene;
+      model.scale.set(0.5, 0.5, 0.5);
+      scene.add(model);
+    }, undefined, function(error) {
+      console.error('Error loading glTF model:', error);
+    });
   }
 }
 
-// Initialize the scene when the page is ready
+// Initialize the scene
 init();
