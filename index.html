@@ -3,113 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Click the Circle Game</title>
+    <title>Memory Matching Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f7f7f7;
+            margin: 0;
+            background-color: #f4f4f4;
         }
-
-        .game-container {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            background-color: #ececec;
-            border: 2px solid #333;
-            overflow: hidden;
+        .game-board {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
         }
-
-        .circle {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: #3498db;
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #2e3b4e;
+            color: transparent;
+            font-size: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
             cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
-
-        .score-board {
+        .card.flipped {
+            background-color: #fff;
+            color: #333;
+        }
+        .card.matched {
+            background-color: #4caf50;
+            color: #fff;
+        }
+        #timer {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #restart {
             margin-top: 20px;
-            font-size: 24px;
-        }
-
-        .timer {
-            font-size: 24px;
-            margin-top: 10px;
-        }
-
-        .game-over {
-            font-size: 32px;
-            font-weight: bold;
-            color: red;
-            display: none;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 
-<div class="game-container">
-    <div id="circle" class="circle"></div>
+<div>
+    <div id="timer">Time: 30</div>
+    <div class="game-board" id="game-board"></div>
+    <button id="restart">Restart</button>
 </div>
 
-<div class="score-board">Score: <span id="score">0</span></div>
-<div class="timer">Time Left: <span id="time-left">30</span> seconds</div>
-<div class="game-over" id="game-over">Game Over! Final Score: <span id="final-score"></span></div>
-
 <script>
-    let score = 0;
-    let timeLeft = 30;
-    let gameOver = false;
-    const circle = document.getElementById('circle');
-    const scoreElement = document.getElementById('score');
-    const timeElement = document.getElementById('time-left');
-    const gameOverElement = document.getElementById('game-over');
-    const finalScoreElement = document.getElementById('final-score');
+    let gridSize = 4; // You can modify this for different grid sizes
+    let timer;
+    let countdown = 30; // Countdown in seconds
+    let flippedCards = [];
+    let matchedCards = 0;
+    let isGameOver = false;
 
-    // Move the circle to a random position
-    function moveCircle() {
-        if (gameOver) return;
-        const container = document.querySelector('.game-container');
-        const maxX = container.offsetWidth - circle.offsetWidth;
-        const maxY = container.offsetHeight - circle.offsetHeight;
+    const cardValues = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    const shuffledValues = [...cardValues, ...cardValues].sort(() => Math.random() - 0.5);
+
+    const board = document.getElementById('game-board');
+    const timerDisplay = document.getElementById('timer');
+    const restartButton = document.getElementById('restart');
+
+    function startGame() {
+        // Reset variables
+        flippedCards = [];
+        matchedCards = 0;
+        isGameOver = false;
+        countdown = 30;
+        timerDisplay.textContent = `Time: ${countdown}`;
         
-        const randomX = Math.random() * maxX;
-        const randomY = Math.random() * maxY;
+        // Clear previous board
+        board.innerHTML = '';
         
-        circle.style.left = randomX + 'px';
-        circle.style.top = randomY + 'px';
+        // Create cards
+        shuffledValues.forEach((value, index) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.value = value;
+            card.dataset.index = index;
+            card.addEventListener('click', flipCard);
+            board.appendChild(card);
+        });
+
+        // Start countdown timer
+        if (timer) clearInterval(timer);
+        timer = setInterval(updateTimer, 1000);
     }
 
-    // Update the score when the circle is clicked
-    circle.addEventListener('click', function() {
-        if (gameOver) return;
-        score++;
-        scoreElement.textContent = score;
-        moveCircle();
-    });
-
-    // Update the timer every second
-    const timerInterval = setInterval(function() {
-        if (gameOver) return;
-        timeLeft--;
-        timeElement.textContent = timeLeft + ' seconds';
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            gameOver = true;
-            gameOverElement.style.display = 'block';
-            finalScoreElement.textContent = score;
+    function updateTimer() {
+        if (countdown > 0 && !isGameOver) {
+            countdown--;
+            timerDisplay.textContent = `Time: ${countdown}`;
+        } else {
+            clearInterval(timer);
+            if (!isGameOver) alert('Time\'s up! Game Over');
+            isGameOver = true;
         }
-    }, 1000);
+    }
 
-    // Start the game by moving the circle immediately
-    moveCircle();
+    function flipCard(event) {
+        if (isGameOver || event.target.classList.contains('flipped') || flippedCards.length === 2) return;
+
+        const card = event.target;
+        card.textContent = card.dataset.value;
+        card.classList.add('flipped');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const [card1, card2] = flippedCards;
+        if (card1.dataset.value === card2.dataset.value) {
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            matchedCards++;
+            flippedCards = [];
+            if (matchedCards === cardValues.length) {
+                clearInterval(timer);
+                alert('Congratulations, you won!');
+                isGameOver = true;
+            }
+        } else {
+            setTimeout(() => {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                card1.textContent = '';
+                card2.textContent = '';
+                flippedCards = [];
+            }, 1000);
+        }
+    }
+
+    restartButton.addEventListener('click', startGame);
+
+    // Initialize game
+    startGame();
 </script>
 
 </body>
