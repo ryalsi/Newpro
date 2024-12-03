@@ -1,161 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Model Viewer</title>
-  <style>
-    #viewer {
-      width: 100%;
-      height: 500px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model Viewer</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+        #fileInput { position: absolute; top: 20px; left: 20px; z-index: 100; }
+    </style>
 </head>
 <body>
-  <input type="file" id="fileInput">
-  <div id="viewer"></div>
+    <!-- File input for uploading model -->
+    <input type="file" id="fileInput" accept=".obj, .glb, .gltf, .fbx" />
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/OrbitControls.js"></script>
+    
+    <script>
+        let scene, camera, renderer, controls, model;
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/loaders/GLTFLoader.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/loaders/OBJLoader.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/loaders/STLLoader.min.js"></script>
+        function init() {
+            // Set up the scene, camera, and renderer
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-  <script>
-    let scene, camera, renderer, model;
-    let loaderMap = {
-      'glb': new THREE.GLTFLoader(),
-      'gltf': new THREE.GLTFLoader(),
-      'obj': new THREE.OBJLoader(),
-      'stl': new THREE.STLLoader(),
-    };
+            // Set up camera position
+            camera.position.z = 3;
 
-    // Initialize the Three.js scene
-    function init() {
-      scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, 500);
-      document.getElementById('viewer').appendChild(renderer.domElement);
+            // Add orbit controls to rotate the model
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
-      scene.add(ambientLight);
+            // Light to illuminate the model
+            const light = new THREE.AmbientLight(0x404040, 5); // Ambient light
+            scene.add(light);
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-      directionalLight.position.set(1, 1, 1).normalize();
-      scene.add(directionalLight);
-
-      // Camera position and controls
-      camera.position.z = 3;
-
-      // Start the animation loop
-      animate();
-    }
-
-    // Render loop
-    function animate() {
-      requestAnimationFrame(animate);
-      
-      if (model) {
-        model.rotation.x += 0.01;
-        model.rotation.y += 0.01;
-      }
-
-      renderer.render(scene, camera);
-    }
-
-    // Handle file upload and model loading
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const fileExtension = file.name.split('.').pop().toLowerCase();
-      const reader = new FileReader();
-
-      reader.onload = function(e) {
-        const content = e.target.result;
-
-        // Remove any previous model from the scene
-        if (model) {
-          scene.remove(model);
+            // Create a simple geometry to show while waiting for the model
+            const geometry = new THREE.BoxGeometry();
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            model = new THREE.Mesh(geometry, material);
+            scene.add(model);
+            
+            animate();
         }
 
-        // Load the model based on its extension
-        load3DModel(fileExtension, content);
-      };
+        function animate() {
+            requestAnimationFrame(animate);
 
-      reader.readAsArrayBuffer(file); // Read file as binary data
-    });
+            // Rotate the model (if any model loaded)
+            if (model) {
+                model.rotation.x += 0.01;
+                model.rotation.y += 0.01;
+            }
 
-    // Load the 3D model based on its file type
-    function load3DModel(extension, content) {
-      const loader = loaderMap[extension];
+            controls.update(); // Update orbit controls
+            renderer.render(scene, camera);
+        }
 
-      if (!loader) {
-        alert("Unsupported file format");
-        return;
-      }
+        // Handle file upload and load model
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-      if (extension === 'obj') {
-        loader.load(
-          URL.createObjectURL(new Blob([content])),
-          function(obj) {
-            model = obj;
-            model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
-            model.position.set(0, 0, 0); // Center the model
-            scene.add(model);
-
-            // Adjust camera position to fit the model
-            adjustCameraToFitModel(model);
-          },
-          undefined,
-          function(error) {
-            console.error('Error loading OBJ model:', error);
-          }
-        );
-      } else if (extension === 'stl') {
-        const geometry = loader.parse(content);
-        const material = new THREE.MeshStandardMaterial({ color: 0x999999 });
-        model = new THREE.Mesh(geometry, material);
-        model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
-        model.position.set(0, 0, 0); // Center the model
-        scene.add(model);
-
-        // Adjust camera position to fit the model
-        adjustCameraToFitModel(model);
-      } else {
-        loader.parse(content, function(gltf) {
-          model = gltf.scene;
-          model.scale.set(0.5, 0.5, 0.5); // Scale the model for visibility
-          model.position.set(0, 0, 0); // Center the model
-          scene.add(model);
-
-          // Adjust camera position to fit the model
-          adjustCameraToFitModel(model);
-        }, undefined, function(error) {
-          console.error('Error loading glTF model:', error);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const loader = new THREE.GLTFLoader();
+                loader.load(e.target.result, function(gltf) {
+                    // Remove the placeholder geometry
+                    if (model) scene.remove(model);
+                    model = gltf.scene;
+                    scene.add(model);
+                });
+            };
+            reader.readAsDataURL(file);
         });
-      }
-    }
 
-    // Function to adjust camera based on model's bounding box
-    function adjustCameraToFitModel(model) {
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const cameraDistance = maxDim / (2 * Math.tan( Math.PI * camera.fov / 360 ));
-      camera.position.set(center.x, center.y, cameraDistance);
-      camera.lookAt(center);
-
-      // Adjust aspect ratio for camera
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-    }
-
-    // Initialize the scene
-    init();
-  </script>
+        // Initialize the 3D scene
+        init();
+    </script>
 </body>
 </html>
