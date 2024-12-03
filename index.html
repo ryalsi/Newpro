@@ -4,9 +4,14 @@
     </body>
     <script>
         // Define a JavaScript function
-        function showMessage() {
-            alert("Button clicked!");
-        }
+        function showMessage() 
+         // Add event listener after the DOM content is loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get the button element by ID and add event listener
+            const button = document.getElementById("myButton");
+            button.addEventListener("click", showMessage);
+        });   
+    
     </script>
 
 </html>>
