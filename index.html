@@ -1,148 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Battle Royale Game</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        canvas {
-            display: block;
-        }
-
-        #score {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            font-size: 20px;
-            color: white;
-        }
-
-        #gameOver {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 30px;
-            color: red;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Object Uploader</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Include Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Include additional loaders for different formats -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/OBJLoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/STLLoader.js"></script>
 </head>
 <body>
+  <div class="container">
+    <h1>Upload and View 3D Object</h1>
+    <input type="file" id="fileInput" accept=".obj, .fbx, .glb, .gltf, .stl" />
+    <div id="viewer" style="width: 100%; height: 500px;"></div>
+  </div>
 
-<div id="score">Score: 0</div>
-<div id="gameOver" style="display: none;">Game Over</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
-    let scene, camera, renderer;
-    let player, playerSpeed = 0.1;
-    let obstacles = [];
-    let score = 0;
-    let gameOver = false;
-
-    // Set up the scene
-    function setup() {
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // Create a simple ground
-        let geometry = new THREE.PlaneGeometry(500, 500);
-        let material = new THREE.MeshBasicMaterial({ color: 0x888888, side: THREE.DoubleSide });
-        let ground = new THREE.Mesh(geometry, material);
-        ground.rotation.x = -Math.PI / 2;
-        scene.add(ground);
-
-        // Create the player (cube)
-        let playerGeometry = new THREE.BoxGeometry(1, 1, 1);
-        let playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        player = new THREE.Mesh(playerGeometry, playerMaterial);
-        scene.add(player);
-
-        // Lighting
-        let light = new THREE.PointLight(0xffffff, 1, 500);
-        light.position.set(10, 10, 10);
-        scene.add(light);
-
-        camera.position.z = 5;
-
-        // Event listener for resizing
-        window.addEventListener('resize', onWindowResize, false);
-    }
-
-    // Handle window resizing
-    function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    // Generate obstacles
-    function createObstacles() {
-        let geometry = new THREE.BoxGeometry(2, 2, 2);
-        let material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        let obstacle = new THREE.Mesh(geometry, material);
-        obstacle.position.set(Math.random() * 20 - 10, 1, Math.random() * 20 - 10);
-        obstacles.push(obstacle);
-        scene.add(obstacle);
-    }
-
-    // Move the player based on keyboard input
-    function movePlayer() {
-        if (gameOver) return;
-
-        if (keyState['ArrowUp']) player.position.z -= playerSpeed;
-        if (keyState['ArrowDown']) player.position.z += playerSpeed;
-        if (keyState['ArrowLeft']) player.position.x -= playerSpeed;
-        if (keyState['ArrowRight']) player.position.x += playerSpeed;
-    }
-
-    // Collision detection with obstacles
-    function checkCollisions() {
-        obstacles.forEach(obstacle => {
-            if (player.position.distanceTo(obstacle.position) < 2) {
-                gameOver = true;
-                document.getElementById('gameOver').style.display = 'block';
-            }
-        });
-    }
-
-    // Update function (game loop)
-    function update() {
-        movePlayer();
-        checkCollisions();
-
-        // Create obstacles randomly
-        if (Math.random() < 0.02) {
-            createObstacles();
-        }
-
-        renderer.render(scene, camera);
-        requestAnimationFrame(update);
-    }
-
-    // Listen for keyboard input
-    let keyState = {};
-    window.addEventListener('keydown', (e) => {
-        keyState[e.key] = true;
-    });
-    window.addEventListener('keyup', (e) => {
-        keyState[e.key] = false;
-    });
-
-    // Start the game
-    setup();
-    update();
-</script>
-
+  <script src="script.js"></script>
 </body>
 </html>
