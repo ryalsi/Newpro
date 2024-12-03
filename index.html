@@ -3,84 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Model Viewer</title>
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
-        #fileInput { position: absolute; top: 20px; left: 20px; z-index: 100; }
-    </style>
+    <title>Model Making Website</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- File input for uploading model -->
-    <input type="file" id="fileInput" accept=".obj, .glb, .gltf, .fbx" />
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/GLTFLoader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/OrbitControls.js"></script>
-    
-    <script>
-        let scene, camera, renderer, controls, model;
+    <header>
+        <h1>Welcome to our Model Making Website</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Gallery</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
-        function init() {
-            // Set up the scene, camera, and renderer
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(renderer.domElement);
+    <main>
+        <section>
+            <h2>About Us</h2>
+            <p>Welcome to our model making website. We specialize in creating detailed scale models for various industries.</p>
+        </section>
 
-            // Set up camera position
-            camera.position.z = 3;
+        <section>
+            <h2>Gallery</h2>
+            <div class="gallery">
+                <img src="model1.jpg" alt="Model 1">
+                <img src="model2.jpg" alt="Model 2">
+                <img src="model3.jpg" alt="Model 3">
+            </div>
+        </section>
 
-            // Add orbit controls to rotate the model
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
+        <section>
+            <h2>Contact</h2>
+            <p>Feel free to contact us for inquiries or to discuss your model making project. Email: info@modelmaking.com</p>
+        </section>
+    </main>
 
-            // Light to illuminate the model
-            const light = new THREE.AmbientLight(0x404040, 5); // Ambient light
-            scene.add(light);
-
-            // Create a simple geometry to show while waiting for the model
-            const geometry = new THREE.BoxGeometry();
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            model = new THREE.Mesh(geometry, material);
-            scene.add(model);
-            
-            animate();
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Rotate the model (if any model loaded)
-            if (model) {
-                model.rotation.x += 0.01;
-                model.rotation.y += 0.01;
-            }
-
-            controls.update(); // Update orbit controls
-            renderer.render(scene, camera);
-        }
-
-        // Handle file upload and load model
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const loader = new THREE.GLTFLoader();
-                loader.load(e.target.result, function(gltf) {
-                    // Remove the placeholder geometry
-                    if (model) scene.remove(model);
-                    model = gltf.scene;
-                    scene.add(model);
-                });
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // Initialize the 3D scene
-        init();
-    </script>
+    <footer>
+        <p>&copy; 2023 Model Making Website. All rights reserved.</p>
+    </footer>
 </body>
 </html>
