@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draggable Cubes</title>
+    <title>Move Cubes with Buttons</title>
     <style>
         /* Basic styles for the cubes */
         .cube {
@@ -14,13 +14,34 @@
             position: absolute; /* Allows the cube to be moved freely */
             cursor: pointer;
         }
+
+        /* Styles for movement buttons */
+        .movement-buttons {
+            margin-top: 20px;
+        }
+
+        .movement-buttons button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <button id="cube" type="button">Add Cube</button>
     <div id="cubes-container"></div>
 
+    <div class="movement-buttons">
+        <button id="moveUp">Move Up</button>
+        <button id="moveDown">Move Down</button>
+        <button id="moveLeft">Move Left</button>
+        <button id="moveRight">Move Right</button>
+    </div>
+
     <script>
+        let selectedCube = null;
+
         // Function to add a new cube
         function showMessage() {
             const container = document.getElementById("cubes-container");
@@ -38,37 +59,56 @@
             // Append the cube to the container
             container.appendChild(cube);
 
-            // Make the cube draggable
-            makeDraggable(cube);
-        }
-
-        // Function to make a cube draggable
-        function makeDraggable(cube) {
-            let isDragging = false;
-            let offsetX, offsetY;
-
-            // When mouse is pressed down on the cube, start dragging
-            cube.addEventListener("mousedown", function(event) {
-                isDragging = true;
-                offsetX = event.clientX - cube.offsetLeft;
-                offsetY = event.clientY - cube.offsetTop;
-                cube.style.cursor = "grabbing"; // Change cursor while dragging
-            });
-
-            // When mouse is moved, move the cube if it's being dragged
-            document.addEventListener("mousemove", function(event) {
-                if (isDragging) {
-                    cube.style.left = (event.clientX - offsetX) + "px";
-                    cube.style.top = (event.clientY - offsetY) + "px";
-                }
-            });
-
-            // When mouse is released, stop dragging
-            document.addEventListener("mouseup", function() {
-                isDragging = false;
-                cube.style.cursor = "pointer"; // Reset cursor
+            // Make the cube selectable
+            cube.addEventListener("click", function() {
+                selectCube(cube);
             });
         }
+
+        // Function to select a cube
+        function selectCube(cube) {
+            if (selectedCube) {
+                selectedCube.style.border = ""; // Remove the border from the previously selected cube
+            }
+
+            selectedCube = cube;
+            selectedCube.style.border = "2px solid red"; // Highlight the selected cube
+        }
+
+        // Functions to move the selected cube
+        function moveUp() {
+            if (selectedCube) {
+                let currentTop = parseInt(selectedCube.style.top) || 0;
+                selectedCube.style.top = (currentTop - 10) + "px";
+            }
+        }
+
+        function moveDown() {
+            if (selectedCube) {
+                let currentTop = parseInt(selectedCube.style.top) || 0;
+                selectedCube.style.top = (currentTop + 10) + "px";
+            }
+        }
+
+        function moveLeft() {
+            if (selectedCube) {
+                let currentLeft = parseInt(selectedCube.style.left) || 0;
+                selectedCube.style.left = (currentLeft - 10) + "px";
+            }
+        }
+
+        function moveRight() {
+            if (selectedCube) {
+                let currentLeft = parseInt(selectedCube.style.left) || 0;
+                selectedCube.style.left = (currentLeft + 10) + "px";
+            }
+        }
+
+        // Add event listeners for the movement buttons
+        document.getElementById("moveUp").addEventListener("click", moveUp);
+        document.getElementById("moveDown").addEventListener("click", moveDown);
+        document.getElementById("moveLeft").addEventListener("click", moveLeft);
+        document.getElementById("moveRight").addEventListener("click", moveRight);
 
         // Add event listener to the "Add Cube" button
         document.getElementById("cube").addEventListener("click", showMessage);
