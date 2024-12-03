@@ -14,6 +14,11 @@ function init() {
   const light = new THREE.AmbientLight(0x404040); // Ambient light
   scene.add(light);
 
+  // Add a directional light for better visibility
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  directionalLight.position.set(5, 5, 5).normalize();
+  scene.add(directionalLight);
+
   // Position the camera
   camera.position.z = 5;
 
@@ -69,19 +74,31 @@ function load3DModel(extension, content) {
 
   if (loader) {
     if (extension === 'obj') {
-      loader.load(content, function(obj) {
-        model = obj;
-        scene.add(model);
-      });
+      loader.load(
+        URL.createObjectURL(new Blob([content])),
+        function(obj) {
+          model = obj;
+          model.scale.set(0.5, 0.5, 0.5); // Scale the model to make it visible
+          scene.add(model);
+        },
+        undefined,
+        function(error) {
+          console.error('Error loading .obj model:', error);
+        }
+      );
     } else if (extension === 'stl') {
       const geometry = loader.parse(content);
       const material = new THREE.MeshStandardMaterial({ color: 0x999999 });
       model = new THREE.Mesh(geometry, material);
+      model.scale.set(0.5, 0.5, 0.5); // Scale the model
       scene.add(model);
     } else {
       loader.parse(content, function(gltf) {
         model = gltf.scene;
+        model.scale.set(0.5, 0.5, 0.5); // Scale the model to fit the camera
         scene.add(model);
+      }, undefined, function(error) {
+        console.error('Error loading glTF model:', error);
       });
     }
   } else {
