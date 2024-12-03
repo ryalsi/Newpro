@@ -1,29 +1,77 @@
 <!DOCTYPE html>
-<html>
-    <body>
-        <!-- Add an ID to the button so it can be selected later -->
-        <button id="cube" type="button">Add Cube</button>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draggable Cubes</title>
+    <style>
+        /* Basic styles for the cubes */
+        .cube {
+            width: 50px;
+            height: 50px;
+            background-color: blue;
+            margin: 10px;
+            position: absolute; /* Allows the cube to be moved freely */
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="cube" type="button">Add Cube</button>
+    <div id="cubes-container"></div>
 
-        <div id="cubes-container"></div> <!-- Container for added cubes -->
+    <script>
+        // Function to add a new cube
+        function showMessage() {
+            const container = document.getElementById("cubes-container");
 
-        <script>
-            // Define a JavaScript function that will be triggered on button click
-            function showMessage() {
-                const container = document.getElementById("cubes-container");
-                
-                // Create a new div to represent a cube
-                const cube = document.createElement("div");
-                cube.style.width = "50px";
-                cube.style.height = "50px";
-                cube.style.backgroundColor = "blue";
-                cube.style.margin = "10px";
-                
-                // Append the cube to the container
-                container.appendChild(cube);
-            }
+            // Create a new cube
+            const cube = document.createElement("div");
+            cube.classList.add("cube");
 
-            // Add event listener to the button after the DOM content is loaded
-            document.getElementById("cube").addEventListener("click", showMessage);
-        </script>
-    </body>
+            // Set a random position for the new cube
+            const randomX = Math.floor(Math.random() * (window.innerWidth - 50));
+            const randomY = Math.floor(Math.random() * (window.innerHeight - 50));
+            cube.style.left = randomX + "px";
+            cube.style.top = randomY + "px";
+
+            // Append the cube to the container
+            container.appendChild(cube);
+
+            // Make the cube draggable
+            makeDraggable(cube);
+        }
+
+        // Function to make a cube draggable
+        function makeDraggable(cube) {
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            // When mouse is pressed down on the cube, start dragging
+            cube.addEventListener("mousedown", function(event) {
+                isDragging = true;
+                offsetX = event.clientX - cube.offsetLeft;
+                offsetY = event.clientY - cube.offsetTop;
+                cube.style.cursor = "grabbing"; // Change cursor while dragging
+            });
+
+            // When mouse is moved, move the cube if it's being dragged
+            document.addEventListener("mousemove", function(event) {
+                if (isDragging) {
+                    cube.style.left = (event.clientX - offsetX) + "px";
+                    cube.style.top = (event.clientY - offsetY) + "px";
+                }
+            });
+
+            // When mouse is released, stop dragging
+            document.addEventListener("mouseup", function() {
+                isDragging = false;
+                cube.style.cursor = "pointer"; // Reset cursor
+            });
+        }
+
+        // Add event listener to the "Add Cube" button
+        document.getElementById("cube").addEventListener("click", showMessage);
+    </script>
+</body>
 </html>
