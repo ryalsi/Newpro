@@ -36,9 +36,9 @@
 <body>
 
     <div id="buttons">
-        <button onclick="addCube()">Add Cube</button>
-        <button onclick="addCuboid()">Add Cuboid</button>
-        <button onclick="addCone()">Add Cone</button>
+        <button id="addCube">Add Cube</button>
+        <button id="addCuboid">Add Cuboid</button>
+        <button id="addCone">Add Cone</button>
         <br>
         <input type="color" id="colorPicker" value="#ff0000"> <!-- Color picker for custom color -->
     </div>
@@ -103,6 +103,11 @@
         document.getElementById("colorPicker").addEventListener("input", (event) => {
             currentColor = event.target.value;
         });
+
+        // Adding Event Listeners to buttons
+        document.getElementById("addCube").addEventListener("click", addCube);
+        document.getElementById("addCuboid").addEventListener("click", addCuboid);
+        document.getElementById("addCone").addEventListener("click", addCone);
 
         // Rendering loop
         function render() {
