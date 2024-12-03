@@ -3,160 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memory Matching Game</title>
+    <title>Gravity Shift</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body, html {
             margin: 0;
-            background-color: #f4f4f4;
-        }
-        .game-board {
-            display: grid;
-            gap: 10px;
-            grid-template-columns: repeat(4, 100px);
-            grid-template-rows: repeat(4, 100px);
-        }
-        .card {
-            width: 100px;
-            height: 100px;
-            background-color: #2e3b4e;
-            color: transparent;
-            font-size: 2rem;
+            padding: 0;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        .card.flipped {
-            background-color: #fff;
-            color: #333;
-        }
-        .card.matched {
-            background-color: #4caf50;
+            background-color: #111;
             color: #fff;
         }
-        #timer {
-            font-size: 24px;
-            margin-bottom: 20px;
+        #gameCanvas {
+            border: 2px solid #fff;
+            background-color: #333;
         }
-        #restart {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
+        .score {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
 
-<div>
-    <div id="timer">Time: 30</div>
-    <div class="game-board" id="game-board"></div>
-    <button id="restart">Restart</button>
-</div>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div class="score" id="score">Score: 0</div>
 
 <script>
-    let gridSize = 4; // You can modify this for different grid sizes
-    let timer;
-    let countdown = 30; // Countdown in seconds
-    let flippedCards = [];
-    let matchedCards = 0;
-    let isGameOver = false;
+    // Game Setup
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreDisplay = document.getElementById('score');
+    
+    const gravityDirections = ['up', 'down', 'left', 'right'];
+    let gravityDirection = 'down';
+    let score = 0;
+    let gameOver = false;
+    
+    // Player Variables
+    const player = {
+        x: 100,
+        y: 500,
+        width: 50,
+        height: 50,
+        speed: 5,
+        gravity: 0.5,
+        velocityX: 0,
+        velocityY: 0,
+        grounded: false,
+        jumpHeight: -15
+    };
+    
+    // Platforms and Obstacles
+    let platforms = [{ x: 100, y: 550, width: 200, height: 20 }];
+    let obstacles = [];
 
-    const cardValues = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-    const shuffledValues = [...cardValues, ...cardValues].sort(() => Math.random() - 0.5);
+    // Handle Key Presses
+    const keys = {};
+    window.addEventListener('keydown', (e) => {
+        keys[e.key] = true;
+    });
+    window.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+    });
 
-    const board = document.getElementById('game-board');
-    const timerDisplay = document.getElementById('timer');
-    const restartButton = document.getElementById('restart');
-
-    function startGame() {
-        // Reset variables
-        flippedCards = [];
-        matchedCards = 0;
-        isGameOver = false;
-        countdown = 30;
-        timerDisplay.textContent = `Time: ${countdown}`;
-        
-        // Clear previous board
-        board.innerHTML = '';
-        
-        // Create cards
-        shuffledValues.forEach((value, index) => {
-            const card = document.createElement('div');
-            card.classList.add('card');
-            card.dataset.value = value;
-            card.dataset.index = index;
-            card.addEventListener('click', flipCard);
-            board.appendChild(card);
-        });
-
-        // Start countdown timer
-        if (timer) clearInterval(timer);
-        timer = setInterval(updateTimer, 1000);
+    // Handle Gravity Shift
+    function shiftGravity() {
+        gravityDirection = gravityDirections[Math.floor(Math.random() * gravityDirections.length)];
     }
 
-    function updateTimer() {
-        if (countdown > 0 && !isGameOver) {
-            countdown--;
-            timerDisplay.textContent = `Time: ${countdown}`;
-        } else {
-            clearInterval(timer);
-            if (!isGameOver) alert('Time\'s up! Game Over');
-            isGameOver = true;
+    // Update Game State
+    function update() {
+        if (gameOver) return;
+
+        // Handle Gravity
+        if (gravityDirection === 'down') {
+            player.velocityY += player.gravity;
+        } else if (gravityDirection === 'up') {
+            player.velocityY -= player.gravity;
+        } else if (gravityDirection === 'left') {
+            player.velocityX -= player.gravity;
+        } else if (gravityDirection === 'right') {
+            player.velocityX += player.gravity;
         }
-    }
 
-    function flipCard(event) {
-        if (isGameOver || event.target.classList.contains('flipped') || flippedCards.length === 2) return;
-
-        const card = event.target;
-        card.textContent = card.dataset.value;
-        card.classList.add('flipped');
-        flippedCards.push(card);
-
-        if (flippedCards.length === 2) {
-            checkMatch();
+        // Player Movement
+        if (keys['ArrowLeft']) {
+            player.x -= player.speed;
         }
-    }
+        if (keys['ArrowRight']) {
+            player.x += player.speed;
+        }
+        if (keys[' '] && player.grounded) {
+            player.velocityY = player.jumpHeight;
+            player.grounded = false;
+        }
 
-    function checkMatch() {
-        const [card1, card2] = flippedCards;
-        if (card1.dataset.value === card2.dataset.value) {
-            card1.classList.add('matched');
-            card2.classList.add('matched');
-            matchedCards++;
-            flippedCards = [];
-            if (matchedCards === cardValues.length) {
-                clearInterval(timer);
-                alert('Congratulations, you won!');
-                isGameOver = true;
+        // Update Player Position
+        player.x += player.velocityX;
+        player.y += player.velocityY;
+
+        // Detect Collisions with Walls
+        if (player.x < 0) player.x = 0;
+        if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+        if (player.y + player.height > canvas.height) {
+            player.y = canvas.height - player.height;
+            player.velocityY = 0;
+            player.grounded = true;
+        }
+
+        // Detect Platform Collision
+        for (let platform of platforms) {
+            if (player.y + player.height <= platform.y && player.y + player.height + player.velocityY > platform.y && player.x + player.width > platform.x && player.x < platform.x + platform.width) {
+                player.velocityY = 0;
+                player.grounded = true;
+                player.y = platform.y - player.height;
             }
-        } else {
-            setTimeout(() => {
-                card1.classList.remove('flipped');
-                card2.classList.remove('flipped');
-                card1.textContent = '';
-                card2.textContent = '';
-                flippedCards = [];
-            }, 1000);
         }
+
+        // Update Score
+        score++;
+        scoreDisplay.textContent = `Score: ${score}`;
+
+        // Random Gravity Shift Every 3 Seconds
+        if (score % 300 === 0) {
+            shiftGravity();
+        }
+
+        // Game Over Condition
+        if (player.y < 0 || player.x < 0 || player.x > canvas.width || player.y > canvas.height) {
+            gameOver = true;
+            alert('Game Over! Your score is: ' + score);
+        }
+
+        // Clear Canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Player
+        ctx.fillStyle = 'green';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // Draw Platforms
+        ctx.fillStyle = 'brown';
+        for (let platform of platforms) {
+            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        }
+
+        // Draw Obstacles
+        ctx.fillStyle = 'red';
+        for (let obstacle of obstacles) {
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        }
+
+        // Loop the Game
+        requestAnimationFrame(update);
     }
 
-    restartButton.addEventListener('click', startGame);
+    // Initialize Game
+    function startGame() {
+        platforms = [{ x: 100, y: 550, width: 200, height: 20 }];
+        obstacles = [];
+        player.x = 100;
+        player.y = 500;
+        player.velocityX = 0;
+        player.velocityY = 0;
+        score = 0;
+        gameOver = false;
+        update();
+    }
 
-    // Initialize game
+    // Start the Game
     startGame();
 </script>
 
