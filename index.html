@@ -3,109 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Geometry Demo on Mobile</title>
+    <title>Draggable Rotating Cone</title>
     <style>
-        body { margin: 0; overflow: hidden; touch-action: none; }
-        /* Make sure the canvas takes full screen */
-        canvas { display: block; position: absolute; top: 0; left: 0; z-index: 0; }
-        /* Controls above the canvas */
-        .controls { position: absolute; top: 10px; left: 10px; z-index: 1; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; }
-        button { margin: 5px; font-size: 14px; padding: 10px; }
-        #colorPicker { margin-top: 10px; }
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #cone {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid #3498db;
+            position: absolute;
+            cursor: grab;
+            transition: transform 0.2s;
+        }
     </style>
 </head>
 <body>
 
-    <!-- The controls (buttons and color picker) -->
-    <div class="controls">
-        <button onclick="addGeometry('cube')">Add Cube</button>
-        <button onclick="addGeometry('cuboid')">Add Cuboid</button>
-        <button onclick="addGeometry('cone')">Add Cone</button>
-        <input type="color" id="colorPicker" value="#ff0000" onchange="updateColor()">
-    </div>
-
-    <!-- The 3D canvas -->
-    <canvas id="threeCanvas"></canvas>
-
-    <!-- Include Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+    <div id="cone"></div>
 
     <script>
-        let scene, camera, renderer, controls;
-        let selectedObject = null;
-        let color = "#ff0000"; // Default color
+        // Set up draggable behavior
+        const cone = document.getElementById('cone');
+        let isDragging = false;
+        let offsetX, offsetY;
 
-        // Set up the scene
-        function init() {
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('threeCanvas'), antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight); // Set size based on screen size
-            document.body.appendChild(renderer.domElement);
+        cone.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - cone.getBoundingClientRect().left;
+            offsetY = e.clientY - cone.getBoundingClientRect().top;
+            cone.style.cursor = 'grabbing';
+        });
 
-            // Add lighting
-            const light = new THREE.AmbientLight(0x404040, 2); // Ambient light
-            scene.add(light);
-
-            // Set up camera position
-            camera.position.z = 5;
-
-            // Orbit controls for rotating and zooming
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.25;
-            controls.enableZoom = true;
-            controls.enableRotate = true; // Allow rotation with touch or mouse
-
-            // Handle window resizing
-            window.addEventListener('resize', onWindowResize, false);
-
-            animate();
-        }
-
-        // Handle window resizing
-        function onWindowResize() {
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-        }
-
-        // Create a geometry (cube, cuboid, or cone)
-        function addGeometry(type) {
-            let geometry;
-            if (type === 'cube') {
-                geometry = new THREE.BoxGeometry(1, 1, 1);
-            } else if (type === 'cuboid') {
-                geometry = new THREE.BoxGeometry(1, 2, 0.5);
-            } else if (type === 'cone') {
-                geometry = new THREE.ConeGeometry(1, 2, 32);
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const x = e.clientX - offsetX;
+                const y = e.clientY - offsetY;
+                cone.style.left = `${x}px`;
+                cone.style.top = `${y}px`;
             }
+        });
 
-            const material = new THREE.MeshStandardMaterial({ color: color });
-            const mesh = new THREE.Mesh(geometry, material);
-            scene.add(mesh);
-            mesh.position.set(Math.random() * 2 - 1, Math.random() * 2 - 1, Math.random() * 2 - 1);
-            selectedObject = mesh; // Automatically select the new object
-        }
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            cone.style.cursor = 'grab';
+        });
 
-        // Update color based on the color picker
-        function updateColor() {
-            color = document.getElementById('colorPicker').value;
-            if (selectedObject) {
-                selectedObject.material.color.set(color);
-            }
-        }
-
-        // Animate the scene
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update(); // Update the controls for smooth rotation
-            renderer.render(scene, camera);
-        }
-
-        // Initialize the scene
-        init();
+        // Set up rotation effect
+        let rotation = 0;
+        cone.addEventListener('click', () => {
+            rotation = (rotation + 45) % 360; // Rotate by 45 degrees on each click
+            cone.style.transform = `rotate(${rotation}deg)`;
+        });
     </script>
 
 </body>
