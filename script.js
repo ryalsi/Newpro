@@ -22,6 +22,35 @@ const createChatLi = (message, className) => {
 }
 
 const generateResponse = async (chatElement) => {
+  // ... existing code ...
+
+  // Get the API response text
+  const responseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '$1');
+
+  // Update the message element
+  messageElement.textContent = responseText;
+
+  // Create a copy button element
+  const copyBtn = document.createElement("button");
+  copyBtn.classList.add("copy-btn");
+  copyBtn.textContent = "Copy";
+
+  // Add click event listener to copy the code
+  copyBtn.addEventListener("click", () => {
+    navigator.clipboard.writeText(responseText);
+    copyBtn.textContent = "Copied!";
+    setTimeout(() => {
+      copyBtn.textContent = "Copy";
+    }, 1000); // Change button text back to "Copy" after 1 second
+  });
+
+  // Append the copy button to the chat message
+  chatElement.appendChild(copyBtn);
+
+  // ... existing code ...
+}
+
+const generateResponse = async (chatElement) => {
   const messageElement = chatElement.querySelector("p");
 
   // Define the properties and message for the API request
