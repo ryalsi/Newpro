@@ -44,8 +44,6 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.min.js"></script> <!-- OrbitControls.js -->
-
     <script>
         // Scene setup
         const scene = new THREE.Scene();
@@ -57,13 +55,6 @@
         let currentColor = "#ff0000"; // Default color (red)
 
         camera.position.z = 5;
-
-        // Create an OrbitControls object to handle camera movement (mouse or touch)
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;  // Smooth camera movement
-        controls.dampingFactor = 0.25;
-        controls.screenSpacePanning = true;
-        controls.maxPolarAngle = Math.PI / 2; // Limit vertical rotation to avoid flipping
 
         // Add cube to the scene
         function addCube() {
@@ -92,6 +83,22 @@
             scene.add(cone);
         }
 
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            scene.traverse(function (object) {
+                if (object instanceof THREE.Mesh) {
+                    object.rotation.x += 0.01;
+                    object.rotation.y += 0.01;
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
         // Resize the canvas on window resize
         window.addEventListener('resize', () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -103,19 +110,6 @@
         document.getElementById("colorPicker").addEventListener("input", (event) => {
             currentColor = event.target.value;
         });
-
-        // Rendering loop
-        function animate() {
-            requestAnimationFrame(animate);
-
-            // Update the controls (this is necessary for OrbitControls to work)
-            controls.update();
-
-            renderer.render(scene, camera);
-        }
-
-        animate(); // Start the animation loop
-
     </script>
 
 </body>
