@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battle Royale - Single Player (Mobile)</title>
+    <title>Battle Royale - Single Player (Realistic Look)</title>
     <style>
+        /* General Body and Canvas Styling */
         body, html {
             margin: 0;
             padding: 0;
@@ -12,13 +13,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #222;
-            color: white;
+            background-color: #2e2e2e;
             font-family: Arial, sans-serif;
+            overflow: hidden;
         }
 
         canvas {
-            border: 2px solid white;
+            border: 2px solid #555;
+            background-color: #333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
         }
 
         #score {
@@ -26,6 +29,7 @@
             top: 10px;
             left: 10px;
             font-size: 20px;
+            color: #fff;
         }
 
         #gameOver {
@@ -35,9 +39,11 @@
             transform: translate(-50%, -50%);
             font-size: 30px;
             color: red;
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
         }
 
-        /* Mobile virtual buttons */
+        /* Mobile Virtual Controls */
         .controls {
             position: fixed;
             bottom: 10px;
@@ -46,21 +52,27 @@
             display: flex;
             justify-content: space-between;
             padding: 10px;
+            z-index: 10;
         }
 
         .control-btn {
             background-color: rgba(255, 255, 255, 0.5);
-            border: 2px solid white;
+            border: 2px solid #fff;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 20px;
-            color: white;
+            color: #fff;
             cursor: pointer;
             user-select: none;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:active {
+            background-color: rgba(255, 255, 255, 0.8);
         }
 
         #shoot {
@@ -70,6 +82,43 @@
         #moveLeft, #moveRight, #moveUp, #moveDown {
             background-color: rgba(0, 255, 0, 0.6);
         }
+
+        /* Enhanced Player and Obstacles */
+        .player {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(145deg, #4CAF50, #2C6F2D);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease-out;
+        }
+
+        .bullet {
+            position: absolute;
+            width: 8px;
+            height: 16px;
+            background-color: #ffeb3b;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(255, 255, 0, 0.7);
+        }
+
+        .enemy {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(145deg, #f44336, #9a2e1c);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        .obstacle {
+            position: absolute;
+            background-color: #777;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -78,7 +127,7 @@
 <div id="score">Score: 0</div>
 <div id="gameOver" style="display: none;">Game Over</div>
 
-<!-- Virtual controls -->
+<!-- Mobile Virtual Controls -->
 <div class="controls">
     <div id="moveLeft" class="control-btn">←</div>
     <div id="moveUp" class="control-btn">↑</div>
@@ -95,9 +144,10 @@
     const gameOverText = document.getElementById('gameOver');
 
     let score = 0;
-    let player = { x: 400, y: 300, width: 30, height: 30, speed: 5, health: 100 };
+    let player = { x: 400, y: 300, width: 40, height: 40, speed: 5, health: 100 };
     let enemies = [];
     let bullets = [];
+    let obstacles = [];
     let playZoneRadius = 250;
     let playZoneX = 400, playZoneY = 300;
     let gameOver = false;
@@ -132,7 +182,7 @@
     // Bullet creation and movement
     function shootBullet() {
         if (controlKeys.shoot && !gameOver) {
-            const bullet = { x: player.x + player.width / 2, y: player.y, width: 5, height: 10, speed: 7 };
+            const bullet = { x: player.x + player.width / 2 - 4, y: player.y, width: 8, height: 16, speed: 7 };
             bullets.push(bullet);
             controlKeys.shoot = false;
         }
@@ -146,7 +196,7 @@
 
     // Enemy generation and movement
     function spawnEnemies() {
-        if (Math.random() < 0.01) {
+        if (Math.random() < 0.02) {
             const enemy = {
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
@@ -166,6 +216,19 @@
             enemy.x += (dx / distance) * enemy.speed;
             enemy.y += (dy / distance) * enemy.speed;
         });
+    }
+
+    // Obstacle generation
+    function spawnObstacles() {
+        if (Math.random() < 0.05) {
+            const obstacle = {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                width: 50 + Math.random() * 100,
+                height: 50 + Math.random() * 100
+            };
+            obstacles.push(obstacle);
+        }
     }
 
     // Collision detection
@@ -199,18 +262,37 @@
                 }
             }
         });
+
+        // Check for player-obstacle collisions
+        obstacles.forEach((obstacle) => {
+            if (player.x < obstacle.x + obstacle.width &&
+                player.x + player.width > obstacle.x &&
+                player.y < obstacle.y + obstacle.height &&
+                player.y + player.height > obstacle.y) {
+                // Player hit obstacle
+                player.health -= 5;
+                if (player.health <= 0) {
+                    gameOver = true;
+                    gameOverText.style.display = 'block';
+                }
+            }
+        });
     }
 
     // Draw functions
     function drawPlayer() {
         ctx.fillStyle = 'green';
-        ctx.fillRect(player.x, player.y, player.width, player.height);
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.width / 2, 0, Math.PI * 2, false);
+        ctx.fill();
     }
 
     function drawEnemies() {
         ctx.fillStyle = 'red';
         enemies.forEach(enemy => {
-            ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            ctx.beginPath();
+            ctx.arc(enemy.x, enemy.y, enemy.width / 2, 0, Math.PI * 2, false);
+            ctx.fill();
         });
     }
 
@@ -218,6 +300,13 @@
         ctx.fillStyle = 'yellow';
         bullets.forEach(bullet => {
             ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        });
+    }
+
+    function drawObstacles() {
+        ctx.fillStyle = 'gray';
+        obstacles.forEach(obstacle => {
+            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
         });
     }
 
@@ -250,11 +339,13 @@
         moveBullets();
         moveEnemies();
         spawnEnemies();
+        spawnObstacles();
         detectCollisions();
 
         drawPlayer();
         drawEnemies();
         drawBullets();
+        drawObstacles();
         drawPlayZone();
         drawScore();
         drawHealthBar();
