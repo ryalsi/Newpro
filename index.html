@@ -3,25 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battle Royale - Single Player (Realistic Look)</title>
+    <title>3D Battle Royale Game</title>
     <style>
-        /* General Body and Canvas Styling */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #2e2e2e;
-            font-family: Arial, sans-serif;
             overflow: hidden;
         }
 
         canvas {
-            border: 2px solid #555;
-            background-color: #333;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+            display: block;
         }
 
         #score {
@@ -29,7 +21,7 @@
             top: 10px;
             left: 10px;
             font-size: 20px;
-            color: #fff;
+            color: white;
         }
 
         #gameOver {
@@ -40,326 +32,116 @@
             font-size: 30px;
             color: red;
             font-weight: bold;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
-        }
-
-        /* Mobile Virtual Controls */
-        .controls {
-            position: fixed;
-            bottom: 10px;
-            left: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            z-index: 10;
-        }
-
-        .control-btn {
-            background-color: rgba(255, 255, 255, 0.5);
-            border: 2px solid #fff;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            color: #fff;
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.2s;
-        }
-
-        .control-btn:active {
-            background-color: rgba(255, 255, 255, 0.8);
-        }
-
-        #shoot {
-            background-color: rgba(255, 0, 0, 0.6);
-        }
-
-        #moveLeft, #moveRight, #moveUp, #moveDown {
-            background-color: rgba(0, 255, 0, 0.6);
-        }
-
-        /* Enhanced Player and Obstacles */
-        .player {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(145deg, #4CAF50, #2C6F2D);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-            transform: translate(-50%, -50%);
-            transition: all 0.1s ease-out;
-        }
-
-        .bullet {
-            position: absolute;
-            width: 8px;
-            height: 16px;
-            background-color: #ffeb3b;
-            border-radius: 4px;
-            box-shadow: 0 0 5px rgba(255, 255, 0, 0.7);
-        }
-
-        .enemy {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(145deg, #f44336, #9a2e1c);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-        }
-
-        .obstacle {
-            position: absolute;
-            background-color: #777;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
         }
     </style>
 </head>
 <body>
 
-<canvas id="gameCanvas" width="800" height="600"></canvas>
 <div id="score">Score: 0</div>
 <div id="gameOver" style="display: none;">Game Over</div>
-
-<!-- Mobile Virtual Controls -->
-<div class="controls">
-    <div id="moveLeft" class="control-btn">←</div>
-    <div id="moveUp" class="control-btn">↑</div>
-    <div id="moveRight" class="control-btn">→</div>
-    <div id="moveDown" class="control-btn">↓</div>
-    <div id="shoot" class="control-btn">🔫</div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-    // Game Constants and Variables
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const scoreDisplay = document.getElementById('score');
-    const gameOverText = document.getElementById('gameOver');
-
-    let score = 0;
-    let player = { x: 400, y: 300, width: 40, height: 40, speed: 5, health: 100 };
-    let enemies = [];
-    let bullets = [];
+    let scene, camera, renderer;
+    let player, playerSpeed = 0.1;
     let obstacles = [];
-    let playZoneRadius = 250;
-    let playZoneX = 400, playZoneY = 300;
+    let score = 0;
     let gameOver = false;
 
-    // Virtual controls status
-    let controlKeys = { up: false, down: false, left: false, right: false, shoot: false };
+    // Set up the scene
+    function setup() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-    // Virtual buttons event listeners
-    document.getElementById('moveUp').addEventListener('touchstart', () => controlKeys.up = true);
-    document.getElementById('moveUp').addEventListener('touchend', () => controlKeys.up = false);
+        // Create a simple ground
+        let geometry = new THREE.PlaneGeometry(500, 500);
+        let material = new THREE.MeshBasicMaterial({ color: 0x888888, side: THREE.DoubleSide });
+        let ground = new THREE.Mesh(geometry, material);
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
 
-    document.getElementById('moveDown').addEventListener('touchstart', () => controlKeys.down = true);
-    document.getElementById('moveDown').addEventListener('touchend', () => controlKeys.down = false);
+        // Create the player (cube)
+        let playerGeometry = new THREE.BoxGeometry(1, 1, 1);
+        let playerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        player = new THREE.Mesh(playerGeometry, playerMaterial);
+        scene.add(player);
 
-    document.getElementById('moveLeft').addEventListener('touchstart', () => controlKeys.left = true);
-    document.getElementById('moveLeft').addEventListener('touchend', () => controlKeys.left = false);
+        // Lighting
+        let light = new THREE.PointLight(0xffffff, 1, 500);
+        light.position.set(10, 10, 10);
+        scene.add(light);
 
-    document.getElementById('moveRight').addEventListener('touchstart', () => controlKeys.right = true);
-    document.getElementById('moveRight').addEventListener('touchend', () => controlKeys.right = false);
+        camera.position.z = 5;
 
-    document.getElementById('shoot').addEventListener('touchstart', () => controlKeys.shoot = true);
-    document.getElementById('shoot').addEventListener('touchend', () => controlKeys.shoot = false);
+        // Event listener for resizing
+        window.addEventListener('resize', onWindowResize, false);
+    }
 
-    // Player movement
+    // Handle window resizing
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // Generate obstacles
+    function createObstacles() {
+        let geometry = new THREE.BoxGeometry(2, 2, 2);
+        let material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        let obstacle = new THREE.Mesh(geometry, material);
+        obstacle.position.set(Math.random() * 20 - 10, 1, Math.random() * 20 - 10);
+        obstacles.push(obstacle);
+        scene.add(obstacle);
+    }
+
+    // Move the player based on keyboard input
     function movePlayer() {
-        if (controlKeys.up && player.y > 0) player.y -= player.speed;
-        if (controlKeys.down && player.y < canvas.height - player.height) player.y += player.speed;
-        if (controlKeys.left && player.x > 0) player.x -= player.speed;
-        if (controlKeys.right && player.x < canvas.width - player.width) player.x += player.speed;
-    }
-
-    // Bullet creation and movement
-    function shootBullet() {
-        if (controlKeys.shoot && !gameOver) {
-            const bullet = { x: player.x + player.width / 2 - 4, y: player.y, width: 8, height: 16, speed: 7 };
-            bullets.push(bullet);
-            controlKeys.shoot = false;
-        }
-    }
-
-    function moveBullets() {
-        bullets.forEach(bullet => {
-            bullet.y -= bullet.speed;
-        });
-    }
-
-    // Enemy generation and movement
-    function spawnEnemies() {
-        if (Math.random() < 0.02) {
-            const enemy = {
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                width: 30,
-                height: 30,
-                speed: 2 + Math.random() * 2
-            };
-            enemies.push(enemy);
-        }
-    }
-
-    function moveEnemies() {
-        enemies.forEach(enemy => {
-            const dx = player.x - enemy.x;
-            const dy = player.y - enemy.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            enemy.x += (dx / distance) * enemy.speed;
-            enemy.y += (dy / distance) * enemy.speed;
-        });
-    }
-
-    // Obstacle generation
-    function spawnObstacles() {
-        if (Math.random() < 0.05) {
-            const obstacle = {
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                width: 50 + Math.random() * 100,
-                height: 50 + Math.random() * 100
-            };
-            obstacles.push(obstacle);
-        }
-    }
-
-    // Collision detection
-    function detectCollisions() {
-        // Check for bullet collisions with enemies
-        bullets.forEach((bullet, bulletIndex) => {
-            enemies.forEach((enemy, enemyIndex) => {
-                if (bullet.x < enemy.x + enemy.width &&
-                    bullet.x + bullet.width > enemy.x &&
-                    bullet.y < enemy.y + enemy.height &&
-                    bullet.y + bullet.height > enemy.y) {
-                    // Bullet hit enemy
-                    enemies.splice(enemyIndex, 1);
-                    bullets.splice(bulletIndex, 1);
-                    score += 10;
-                }
-            });
-        });
-
-        // Check for player-enemy collisions
-        enemies.forEach((enemy) => {
-            if (player.x < enemy.x + enemy.width &&
-                player.x + player.width > enemy.x &&
-                player.y < enemy.y + enemy.height &&
-                player.y + player.height > enemy.y) {
-                // Enemy hit player
-                player.health -= 10;
-                if (player.health <= 0) {
-                    gameOver = true;
-                    gameOverText.style.display = 'block';
-                }
-            }
-        });
-
-        // Check for player-obstacle collisions
-        obstacles.forEach((obstacle) => {
-            if (player.x < obstacle.x + obstacle.width &&
-                player.x + player.width > obstacle.x &&
-                player.y < obstacle.y + obstacle.height &&
-                player.y + player.height > obstacle.y) {
-                // Player hit obstacle
-                player.health -= 5;
-                if (player.health <= 0) {
-                    gameOver = true;
-                    gameOverText.style.display = 'block';
-                }
-            }
-        });
-    }
-
-    // Draw functions
-    function drawPlayer() {
-        ctx.fillStyle = 'green';
-        ctx.beginPath();
-        ctx.arc(player.x, player.y, player.width / 2, 0, Math.PI * 2, false);
-        ctx.fill();
-    }
-
-    function drawEnemies() {
-        ctx.fillStyle = 'red';
-        enemies.forEach(enemy => {
-            ctx.beginPath();
-            ctx.arc(enemy.x, enemy.y, enemy.width / 2, 0, Math.PI * 2, false);
-            ctx.fill();
-        });
-    }
-
-    function drawBullets() {
-        ctx.fillStyle = 'yellow';
-        bullets.forEach(bullet => {
-            ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
-        });
-    }
-
-    function drawObstacles() {
-        ctx.fillStyle = 'gray';
-        obstacles.forEach(obstacle => {
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-        });
-    }
-
-    function drawPlayZone() {
-        ctx.beginPath();
-        ctx.arc(playZoneX, playZoneY, playZoneRadius, 0, Math.PI * 2, false);
-        ctx.strokeStyle = 'blue';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.closePath();
-    }
-
-    function drawScore() {
-        scoreDisplay.textContent = 'Score: ' + score;
-    }
-
-    function drawHealthBar() {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(10, canvas.height - 30, player.health * 2, 20);
-    }
-
-    // Game loop
-    function gameLoop() {
         if (gameOver) return;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        movePlayer();
-        shootBullet();
-        moveBullets();
-        moveEnemies();
-        spawnEnemies();
-        spawnObstacles();
-        detectCollisions();
-
-        drawPlayer();
-        drawEnemies();
-        drawBullets();
-        drawObstacles();
-        drawPlayZone();
-        drawScore();
-        drawHealthBar();
-
-        // Shrink the play zone over time
-        if (playZoneRadius > 50) {
-            playZoneRadius -= 0.1;
-        }
-
-        requestAnimationFrame(gameLoop);
+        if (keyState['ArrowUp']) player.position.z -= playerSpeed;
+        if (keyState['ArrowDown']) player.position.z += playerSpeed;
+        if (keyState['ArrowLeft']) player.position.x -= playerSpeed;
+        if (keyState['ArrowRight']) player.position.x += playerSpeed;
     }
 
+    // Collision detection with obstacles
+    function checkCollisions() {
+        obstacles.forEach(obstacle => {
+            if (player.position.distanceTo(obstacle.position) < 2) {
+                gameOver = true;
+                document.getElementById('gameOver').style.display = 'block';
+            }
+        });
+    }
+
+    // Update function (game loop)
+    function update() {
+        movePlayer();
+        checkCollisions();
+
+        // Create obstacles randomly
+        if (Math.random() < 0.02) {
+            createObstacles();
+        }
+
+        renderer.render(scene, camera);
+        requestAnimationFrame(update);
+    }
+
+    // Listen for keyboard input
+    let keyState = {};
+    window.addEventListener('keydown', (e) => {
+        keyState[e.key] = true;
+    });
+    window.addEventListener('keyup', (e) => {
+        keyState[e.key] = false;
+    });
+
     // Start the game
-    gameLoop();
+    setup();
+    update();
 </script>
 
 </body>
