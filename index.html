@@ -7,8 +7,11 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Chatbot toggler and chat UI -->
+
+    <!-- Chatbot Toggle Button -->
     <div class="chatbot-toggler">Chatbot</div>
+
+    <!-- Chatbox -->
     <div class="chatbox">
         <button class="close-btn">X</button>
         <ul class="chat-list"></ul>
@@ -18,111 +21,53 @@
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script>
         const chatbotToggler = document.querySelector(".chatbot-toggler");
         const closeBtn = document.querySelector(".close-btn");
         const chatbox = document.querySelector(".chatbox");
         const chatInput = document.querySelector(".chat-input textarea");
         const sendChatBtn = document.querySelector(".chat-input span");
-        const chatList = document.querySelector(".chat-list");
 
-        let userMessage = null; // Variable to store user's message
+        let userMessage = null;
         const inputInitHeight = chatInput.scrollHeight;
 
-        // API configuration
-        const API_KEY = "AIzaSyCSJOLJoNw1P9f6HdezIfkaSrhLOSK5H7w"; // Your API key here
-        const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
-
-        // Create a new chat <li> element
         const createChatLi = (message, className) => {
             const chatLi = document.createElement("li");
-            chatLi.classList.add("chat", `${className}`);
+            chatLi.classList.add("chat", className);
             let chatContent = className === "outgoing" ? `<p></p>` : `<span class="material-symbols-outlined">smart_toy</span><p></p>`;
             chatLi.innerHTML = chatContent;
             chatLi.querySelector("p").textContent = message;
             return chatLi;
         };
 
-        // Generate a response from the API
-        const generateResponse = async (chatElement) => {
-            try {
-                // Send the request to the API
-                const requestOptions = {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contents: [{
-                            role: "user",
-                            parts: [{ text: userMessage }]
-                        }]
-                    }),
-                };
-
-                // Create a copy button element
-                const copyBtn = document.createElement("button");
-                copyBtn.classList.add("copy-btn");
-                copyBtn.textContent = "Copy";
-
-                // Add click event listener to copy the response text
-                copyBtn.addEventListener("click", () => {
-                    navigator.clipboard.writeText(responseText);
-                    copyBtn.textContent = "Copied!";
-                    setTimeout(() => {
-                        copyBtn.textContent = "Copy";
-                    }, 1000); // Change button text back to "Copy" after 1 second
-                });
-
-                // Fetch the API response
-                const response = await fetch(API_URL, requestOptions);
-                const data = await response.json();
-
-                if (!response.ok) throw new Error(data.error.message);
-
-                // Get the API response text
-                const responseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, '$1');
-                chatElement.textContent = responseText;
-
-                // Append the copy button to the chat element
-                chatElement.appendChild(copyBtn);
-
-            } catch (error) {
-                // Handle error
-                chatElement.classList.add("error");
-                chatElement.textContent = error.message || "An error occurred. Please try again.";
-            } finally {
-                chatbox.scrollTo(0, chatbox.scrollHeight);
-            }
-        };
-
-        // Handle sending the user's message
         const handleChat = () => {
-            userMessage = chatInput.value.trim(); // Get user entered message and remove extra whitespace
+            userMessage = chatInput.value.trim();
             if (!userMessage) return;
 
-            // Clear the input textarea and set its height to default
             chatInput.value = "";
             chatInput.style.height = `${inputInitHeight}px`;
 
-            // Append the user's message to the chatbox
-            chatList.appendChild(createChatLi(userMessage, "outgoing"));
+            chatbox.appendChild(createChatLi(userMessage, "outgoing"));
             chatbox.scrollTo(0, chatbox.scrollHeight);
 
-            // Display "Thinking..." message while waiting for the response
             setTimeout(() => {
                 const incomingChatLi = createChatLi("Thinking...", "incoming");
-                chatList.appendChild(incomingChatLi);
+                chatbox.appendChild(incomingChatLi);
                 chatbox.scrollTo(0, chatbox.scrollHeight);
-                generateResponse(incomingChatLi);
+
+                setTimeout(() => {
+                    incomingChatLi.querySelector("p").textContent = "This is a simulated response.";
+                    chatbox.scrollTo(0, chatbox.scrollHeight);
+                }, 1000);
             }, 600);
         };
 
-        // Adjust input area height dynamically
         chatInput.addEventListener("input", () => {
             chatInput.style.height = `${inputInitHeight}px`;
             chatInput.style.height = `${chatInput.scrollHeight}px`;
         });
 
-        // Handle Enter key press
         chatInput.addEventListener("keydown", (e) => {
             if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
                 e.preventDefault();
@@ -130,18 +75,16 @@
             }
         });
 
-        // Send button click event
         sendChatBtn.addEventListener("click", handleChat);
 
-        // Close button click event
         closeBtn.addEventListener("click", () => {
             document.body.classList.remove("show-chatbot");
         });
 
-        // Toggle chatbot visibility
         chatbotToggler.addEventListener("click", () => {
             document.body.classList.toggle("show-chatbot");
         });
     </script>
+
 </body>
 </html>
