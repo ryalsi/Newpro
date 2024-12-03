@@ -3,120 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Move Cubes with Buttons</title>
+    <title>Moveable Cubes</title>
     <style>
-        /* Basic styles for the cubes */
         .cube {
             width: 50px;
             height: 50px;
             background-color: blue;
-            margin: 10px;
-            position: absolute; /* Allows the cube to be moved freely */
+            position: absolute;
             cursor: pointer;
         }
 
-        /* Styles for movement buttons */
-        .movement-buttons {
-            margin-top: 20px;
-        }
-
-        .movement-buttons button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        /* Style for selected cube */
         .selected {
             border: 2px solid red;
         }
     </style>
 </head>
 <body>
-    <button id="cube" type="button">Add Cube</button>
-    <div id="cubes-container"></div>
-
-    <div class="movement-buttons">
-        <button id="moveUp">Move Up</button>
-        <button id="moveDown">Move Down</button>
-        <button id="moveLeft">Move Left</button>
-        <button id="moveRight">Move Right</button>
-    </div>
+    <button id="addCube">Add Cube</button>
+    <div id="cubeContainer"></div>
 
     <script>
         let selectedCube = null;
 
-        // Function to add a new cube
-        function showMessage() {
-            const container = document.getElementById("cubes-container");
+        function addCube() {
+            const cube = document.createElement('div');
+            cube.classList.add('cube');
 
-            // Create a new cube
-            const cube = document.createElement("div");
-            cube.classList.add("cube");
+            // Random initial position
+            cube.style.left = Math.random() * (window.innerWidth - 50) + 'px';
+            cube.style.top = Math.random() * (window.innerHeight - 50) + 'px';
 
-            // Set a random position for the new cube
-            const randomX = Math.floor(Math.random() * (window.innerWidth - 50));
-            const randomY = Math.floor(Math.random() * (window.innerHeight - 50));
-            cube.style.left = randomX + "px";
-            cube.style.top = randomY + "px";
-
-            // Append the cube to the container
-            container.appendChild(cube);
-
-            // Make the cube selectable
-            cube.addEventListener("click", function() {
-                selectCube(cube);
+            cube.addEventListener('click', () => {
+                if (selectedCube) {
+                    selectedCube.classList.remove('selected');
+                }
+                selectedCube = cube;
+                cube.classList.add('selected');
             });
+
+            document.getElementById('cubeContainer').appendChild(cube);
         }
 
-        // Function to select a cube
-        function selectCube(cube) {
+        function moveCube(direction) {
             if (selectedCube) {
-                selectedCube.classList.remove("selected"); // Remove the border from the previously selected cube
-            }
+                const style = window.getComputedStyle(selectedCube);
+                const currentTop = parseInt(style.top);
+                const currentLeft = parseInt(style.left);
 
-            selectedCube = cube;
-            selectedCube.classList.add("selected"); // Highlight the selected cube
-        }
-
-        // Functions to move the selected cube
-        function moveUp() {
-            if (selectedCube) {
-                let currentTop = parseInt(selectedCube.style.top, 10) || 0;
-                selectedCube.style.top = (currentTop - 10) + "px";
-            }
-        }
-
-        function moveDown() {
-            if (selectedCube) {
-                let currentTop = parseInt(selectedCube.style.top, 10) || 0;
-                selectedCube.style.top = (currentTop + 10) + "px";
-            }
-        }
-
-        function moveLeft() {
-            if (selectedCube) {
-                let currentLeft = parseInt(selectedCube.style.left, 10) || 0;
-                selectedCube.style.left = (currentLeft - 10) + "px";
+                switch (direction) {
+                    case 'up':
+                        selectedCube.style.top = (currentTop - 10) + 'px';
+                        break;
+                    case 'down':
+                        selectedCube.style.top = (currentTop + 10) + 'px';
+                        break;
+                    case 'left':
+                        selectedCube.style.left = (currentLeft - 10) + 'px';
+                        break;
+                    case 'right':
+                        selectedCube.style.left = (currentLeft + 10) + 'px';
+                        break;
+                }
             }
         }
 
-        function moveRight() {
-            if (selectedCube) {
-                let currentLeft = parseInt(selectedCube.style.left, 10) || 0;
-                selectedCube.style.left = (currentLeft + 10) + "px";
-            }
-        }
+        document.getElementById('addCube').addEventListener('click', addCube);
 
-        // Add event listeners for the movement buttons
-        document.getElementById("moveUp").addEventListener("click", moveUp);
-        document.getElementById("moveDown").addEventListener("click", moveDown);
-        document.getElementById("moveLeft").addEventListener("click", moveLeft);
-        document.getElementById("moveRight").addEventListener("click", moveRight);
-
-        // Add event listener to the "Add Cube" button
-        document.getElementById("cube").addEventListener("click", showMessage);
+        // Event listeners for movement buttons (you can add these to your HTML)
+        document.getElementById('moveUp').addEventListener('click', () => moveCube('up'));
+        document.getElementById('moveDown').addEventListener('click', () => moveCube('down'));
+        document.getElementById('moveLeft').addEventListener('click', () => moveCube('left'));
+        document.getElementById('moveRight').addEventListener('click', () => moveCube('right'));
     </script>
 </body>
 </html>
