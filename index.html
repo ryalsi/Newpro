@@ -15,7 +15,7 @@
 </head>
 <body>
 
-    <button id="showButton" onclick="showNewButtons()">Show New Buttons</button>
+    <button id="showButton" onclick="showNewButtons()">Add geometry</button>
 
     <div class="button-container" id="newButtonsContainer">
         <!-- New buttons will appear here -->
@@ -26,7 +26,7 @@
             const container = document.getElementById("newButtonsContainer");
 
             // Example list of new buttons to add
-            const newButtons = ["Button 1", "Button 2", "Button 3"];
+            const newButtons = ["add cube", "add cuboid", "add cone"];
 
             // Clear any existing buttons before adding new ones
             container.innerHTML = "";
