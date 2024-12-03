@@ -3,103 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moveable Cubes</title>
+    <title>Click the Circle Game</title>
     <style>
-        .cube {
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f7f7f7;
+        }
+
+        .game-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            background-color: #ececec;
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
             width: 50px;
             height: 50px;
-            background-color: blue;
-            position: absolute;
+            border-radius: 50%;
+            background-color: #3498db;
             cursor: pointer;
         }
 
-        .selected {
-            border: 2px solid red;
+        .score-board {
+            margin-top: 20px;
+            font-size: 24px;
         }
 
-        /* Style the movement buttons */
-        .movement-buttons button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 14px;
-            cursor: pointer;
+        .timer {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+
+        .game-over {
+            font-size: 32px;
+            font-weight: bold;
+            color: red;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <button id="addCube">Add Cube</button>
 
-    <!-- Movement Buttons -->
-    <div class="movement-buttons">
-        <button id="moveUp">Move Up</button>
-        <button id="moveDown">Move Down</button>
-        <button id="moveLeft">Move Left</button>
-        <button id="moveRight">Move Right</button>
-    </div>
+<div class="game-container">
+    <div id="circle" class="circle"></div>
+</div>
 
-    <div id="cubeContainer"></div>
+<div class="score-board">Score: <span id="score">0</span></div>
+<div class="timer">Time Left: <span id="time-left">30</span> seconds</div>
+<div class="game-over" id="game-over">Game Over! Final Score: <span id="final-score"></span></div>
 
-    <script>
-        let selectedCube = null;
+<script>
+    let score = 0;
+    let timeLeft = 30;
+    let gameOver = false;
+    const circle = document.getElementById('circle');
+    const scoreElement = document.getElementById('score');
+    const timeElement = document.getElementById('time-left');
+    const gameOverElement = document.getElementById('game-over');
+    const finalScoreElement = document.getElementById('final-score');
 
-        // Function to add a new cube
-        function addCube() {
-            const cube = document.createElement('div');
-            cube.classList.add('cube');
+    // Move the circle to a random position
+    function moveCircle() {
+        if (gameOver) return;
+        const container = document.querySelector('.game-container');
+        const maxX = container.offsetWidth - circle.offsetWidth;
+        const maxY = container.offsetHeight - circle.offsetHeight;
+        
+        const randomX = Math.random() * maxX;
+        const randomY = Math.random() * maxY;
+        
+        circle.style.left = randomX + 'px';
+        circle.style.top = randomY + 'px';
+    }
 
-            // Set random initial position within the window
-            cube.style.left = Math.random() * (window.innerWidth - 50) + 'px';
-            cube.style.top = Math.random() * (window.innerHeight - 50) + 'px';
+    // Update the score when the circle is clicked
+    circle.addEventListener('click', function() {
+        if (gameOver) return;
+        score++;
+        scoreElement.textContent = score;
+        moveCircle();
+    });
 
-            // Add event listener to select the cube when clicked
-            cube.addEventListener('click', () => {
-                // Remove the 'selected' class from the previous cube
-                if (selectedCube) {
-                    selectedCube.classList.remove('selected');
-                }
-
-                // Update the selected cube
-                selectedCube = cube;
-                cube.classList.add('selected');
-            });
-
-            // Append the new cube to the container
-            document.getElementById('cubeContainer').appendChild(cube);
+    // Update the timer every second
+    const timerInterval = setInterval(function() {
+        if (gameOver) return;
+        timeLeft--;
+        timeElement.textContent = timeLeft + ' seconds';
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            gameOver = true;
+            gameOverElement.style.display = 'block';
+            finalScoreElement.textContent = score;
         }
+    }, 1000);
 
-        // Function to move the selected cube
-        function moveCube(direction) {
-            if (selectedCube) {
-                const style = window.getComputedStyle(selectedCube);
-                let currentTop = parseInt(style.top, 10);
-                let currentLeft = parseInt(style.left, 10);
+    // Start the game by moving the circle immediately
+    moveCircle();
+</script>
 
-                // Move the cube in the specified direction
-                switch (direction) {
-                    case 'up':
-                        selectedCube.style.top = (currentTop - 10) + 'px';
-                        break;
-                    case 'down':
-                        selectedCube.style.top = (currentTop + 10) + 'px';
-                        break;
-                    case 'left':
-                        selectedCube.style.left = (currentLeft - 10) + 'px';
-                        break;
-                    case 'right':
-                        selectedCube.style.left = (currentLeft + 10) + 'px';
-                        break;
-                }
-            }
-        }
-
-        // Event listeners for movement buttons
-        document.getElementById('moveUp').addEventListener('click', () => moveCube('up'));
-        document.getElementById('moveDown').addEventListener('click', () => moveCube('down'));
-        document.getElementById('moveLeft').addEventListener('click', () => moveCube('left'));
-        document.getElementById('moveRight').addEventListener('click', () => moveCube('right'));
-
-        // Event listener to add a new cube
-        document.getElementById('addCube').addEventListener('click', addCube);
-    </script>
 </body>
 </html>
