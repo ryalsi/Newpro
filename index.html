@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gravity Shift</title>
+    <title>Battle Royale - Single Player</title>
     <style>
         body, html {
             margin: 0;
@@ -12,171 +12,218 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #111;
-            color: #fff;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
         }
-        #gameCanvas {
-            border: 2px solid #fff;
-            background-color: #333;
+
+        canvas {
+            border: 2px solid white;
         }
-        .score {
+
+        #score {
             position: fixed;
             top: 10px;
             left: 10px;
             font-size: 20px;
+        }
+
+        #gameOver {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            color: red;
         }
     </style>
 </head>
 <body>
 
 <canvas id="gameCanvas" width="800" height="600"></canvas>
-<div class="score" id="score">Score: 0</div>
+<div id="score">Score: 0</div>
+<div id="gameOver" style="display: none;">Game Over</div>
 
 <script>
-    // Game Setup
+    // Game Constants and Variables
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const scoreDisplay = document.getElementById('score');
-    
-    const gravityDirections = ['up', 'down', 'left', 'right'];
-    let gravityDirection = 'down';
-    let score = 0;
-    let gameOver = false;
-    
-    // Player Variables
-    const player = {
-        x: 100,
-        y: 500,
-        width: 50,
-        height: 50,
-        speed: 5,
-        gravity: 0.5,
-        velocityX: 0,
-        velocityY: 0,
-        grounded: false,
-        jumpHeight: -15
-    };
-    
-    // Platforms and Obstacles
-    let platforms = [{ x: 100, y: 550, width: 200, height: 20 }];
-    let obstacles = [];
+    const gameOverText = document.getElementById('gameOver');
 
-    // Handle Key Presses
-    const keys = {};
+    let score = 0;
+    let player = { x: 400, y: 300, width: 30, height: 30, speed: 5, health: 100 };
+    let enemies = [];
+    let bullets = [];
+    let playZoneRadius = 250;
+    let playZoneX = 400, playZoneY = 300;
+    let gameOver = false;
+
+    // Handle Movement Keys
+    let keys = { up: false, down: false, left: false, right: false, shoot: false };
     window.addEventListener('keydown', (e) => {
-        keys[e.key] = true;
+        if (e.key === 'ArrowUp') keys.up = true;
+        if (e.key === 'ArrowDown') keys.down = true;
+        if (e.key === 'ArrowLeft') keys.left = true;
+        if (e.key === 'ArrowRight') keys.right = true;
+        if (e.key === ' ') keys.shoot = true;
     });
     window.addEventListener('keyup', (e) => {
-        keys[e.key] = false;
+        if (e.key === 'ArrowUp') keys.up = false;
+        if (e.key === 'ArrowDown') keys.down = false;
+        if (e.key === 'ArrowLeft') keys.left = false;
+        if (e.key === 'ArrowRight') keys.right = false;
+        if (e.key === ' ') keys.shoot = false;
     });
 
-    // Handle Gravity Shift
-    function shiftGravity() {
-        gravityDirection = gravityDirections[Math.floor(Math.random() * gravityDirections.length)];
+    // Player movement
+    function movePlayer() {
+        if (keys.up && player.y > 0) player.y -= player.speed;
+        if (keys.down && player.y < canvas.height - player.height) player.y += player.speed;
+        if (keys.left && player.x > 0) player.x -= player.speed;
+        if (keys.right && player.x < canvas.width - player.width) player.x += player.speed;
     }
 
-    // Update Game State
-    function update() {
-        if (gameOver) return;
-
-        // Handle Gravity
-        if (gravityDirection === 'down') {
-            player.velocityY += player.gravity;
-        } else if (gravityDirection === 'up') {
-            player.velocityY -= player.gravity;
-        } else if (gravityDirection === 'left') {
-            player.velocityX -= player.gravity;
-        } else if (gravityDirection === 'right') {
-            player.velocityX += player.gravity;
+    // Bullet creation and movement
+    function shootBullet() {
+        if (keys.shoot && !gameOver) {
+            const bullet = { x: player.x + player.width / 2, y: player.y, width: 5, height: 10, speed: 7 };
+            bullets.push(bullet);
+            keys.shoot = false;
         }
+    }
 
-        // Player Movement
-        if (keys['ArrowLeft']) {
-            player.x -= player.speed;
-        }
-        if (keys['ArrowRight']) {
-            player.x += player.speed;
-        }
-        if (keys[' '] && player.grounded) {
-            player.velocityY = player.jumpHeight;
-            player.grounded = false;
-        }
+    function moveBullets() {
+        bullets.forEach(bullet => {
+            bullet.y -= bullet.speed;
+        });
+    }
 
-        // Update Player Position
-        player.x += player.velocityX;
-        player.y += player.velocityY;
-
-        // Detect Collisions with Walls
-        if (player.x < 0) player.x = 0;
-        if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-        if (player.y + player.height > canvas.height) {
-            player.y = canvas.height - player.height;
-            player.velocityY = 0;
-            player.grounded = true;
+    // Enemy generation and movement
+    function spawnEnemies() {
+        if (Math.random() < 0.01) {
+            const enemy = {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                width: 30,
+                height: 30,
+                speed: 2 + Math.random() * 2
+            };
+            enemies.push(enemy);
         }
+    }
 
-        // Detect Platform Collision
-        for (let platform of platforms) {
-            if (player.y + player.height <= platform.y && player.y + player.height + player.velocityY > platform.y && player.x + player.width > platform.x && player.x < platform.x + platform.width) {
-                player.velocityY = 0;
-                player.grounded = true;
-                player.y = platform.y - player.height;
+    function moveEnemies() {
+        enemies.forEach(enemy => {
+            const dx = player.x - enemy.x;
+            const dy = player.y - enemy.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            enemy.x += (dx / distance) * enemy.speed;
+            enemy.y += (dy / distance) * enemy.speed;
+        });
+    }
+
+    // Collision detection
+    function detectCollisions() {
+        // Check for bullet collisions with enemies
+        bullets.forEach((bullet, bulletIndex) => {
+            enemies.forEach((enemy, enemyIndex) => {
+                if (bullet.x < enemy.x + enemy.width &&
+                    bullet.x + bullet.width > enemy.x &&
+                    bullet.y < enemy.y + enemy.height &&
+                    bullet.y + bullet.height > enemy.y) {
+                    // Bullet hit enemy
+                    enemies.splice(enemyIndex, 1);
+                    bullets.splice(bulletIndex, 1);
+                    score += 10;
+                }
+            });
+        });
+
+        // Check for player-enemy collisions
+        enemies.forEach((enemy) => {
+            if (player.x < enemy.x + enemy.width &&
+                player.x + player.width > enemy.x &&
+                player.y < enemy.y + enemy.height &&
+                player.y + player.height > enemy.y) {
+                // Enemy hit player
+                player.health -= 10;
+                if (player.health <= 0) {
+                    gameOver = true;
+                    gameOverText.style.display = 'block';
+                }
             }
-        }
+        });
+    }
 
-        // Update Score
-        score++;
-        scoreDisplay.textContent = `Score: ${score}`;
-
-        // Random Gravity Shift Every 3 Seconds
-        if (score % 300 === 0) {
-            shiftGravity();
-        }
-
-        // Game Over Condition
-        if (player.y < 0 || player.x < 0 || player.x > canvas.width || player.y > canvas.height) {
-            gameOver = true;
-            alert('Game Over! Your score is: ' + score);
-        }
-
-        // Clear Canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw Player
+    // Draw functions
+    function drawPlayer() {
         ctx.fillStyle = 'green';
         ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 
-        // Draw Platforms
-        ctx.fillStyle = 'brown';
-        for (let platform of platforms) {
-            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-        }
-
-        // Draw Obstacles
+    function drawEnemies() {
         ctx.fillStyle = 'red';
-        for (let obstacle of obstacles) {
-            ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+        enemies.forEach(enemy => {
+            ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        });
+    }
+
+    function drawBullets() {
+        ctx.fillStyle = 'yellow';
+        bullets.forEach(bullet => {
+            ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+        });
+    }
+
+    function drawPlayZone() {
+        ctx.beginPath();
+        ctx.arc(playZoneX, playZoneY, playZoneRadius, 0, Math.PI * 2, false);
+        ctx.strokeStyle = 'blue';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function drawScore() {
+        scoreDisplay.textContent = 'Score: ' + score;
+    }
+
+    function drawHealthBar() {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(10, canvas.height - 30, player.health * 2, 20);
+    }
+
+    // Game loop
+    function gameLoop() {
+        if (gameOver) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        movePlayer();
+        shootBullet();
+        moveBullets();
+        moveEnemies();
+        spawnEnemies();
+        detectCollisions();
+
+        drawPlayer();
+        drawEnemies();
+        drawBullets();
+        drawPlayZone();
+        drawScore();
+        drawHealthBar();
+
+        // Shrink the play zone over time
+        if (playZoneRadius > 50) {
+            playZoneRadius -= 0.1;
         }
 
-        // Loop the Game
-        requestAnimationFrame(update);
+        requestAnimationFrame(gameLoop);
     }
 
-    // Initialize Game
-    function startGame() {
-        platforms = [{ x: 100, y: 550, width: 200, height: 20 }];
-        obstacles = [];
-        player.x = 100;
-        player.y = 500;
-        player.velocityX = 0;
-        player.velocityY = 0;
-        score = 0;
-        gameOver = false;
-        update();
-    }
-
-    // Start the Game
-    startGame();
+    // Start the game
+    gameLoop();
 </script>
 
 </body>
