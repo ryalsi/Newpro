@@ -3,182 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Platformer Game</title>
+    <title>3D Model with Three.js</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #87CEEB;
-        }
-        canvas {
-            display: block;
-            background-color: #fff;
-            margin: 0 auto;
-        }
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-        // Set canvas dimensions
-        canvas.width = 800;
-        canvas.height = 600;
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-        // Player settings
-        const playerWidth = 50;
-        const playerHeight = 50;
-        let playerX = canvas.width / 2 - playerWidth / 2;
-        let playerY = canvas.height - playerHeight - 10;
-        const playerSpeed = 5;
+        // Create a Cube
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
 
-        // Game variables
-        let isGameOver = false;
-        let score = 0;
+        camera.position.z = 5;
 
-        // Coin settings
-        const coinWidth = 30;
-        const coinHeight = 30;
-        let coinX = Math.random() * (canvas.width - coinWidth);
-        let coinY = -coinHeight;
-        const coinSpeed = 3;
+        // Animate the cube
+        function animate() {
+            requestAnimationFrame(animate);
 
-        // Obstacle settings
-        const obstacleWidth = 50;
-        const obstacleHeight = 50;
-        let obstacleX = Math.random() * (canvas.width - obstacleWidth);
-        let obstacleY = -obstacleHeight;
-        const obstacleSpeed = 4;
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
 
-        // Event listeners for player controls
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        canvas.addEventListener('touchstart', touchStartHandler, false);
-        canvas.addEventListener('touchmove', touchMoveHandler, false);
-        canvas.addEventListener('touchend', touchEndHandler, false);
-
-        function touchStartHandler(e) {
-            touchStartX = e.changedTouches[0].pageX; // Store the starting touch position
+            renderer.render(scene, camera);
         }
 
-        function touchMoveHandler(e) {
-            e.preventDefault(); // Prevent default action to avoid scroll
-            touchEndX = e.changedTouches[0].pageX; // Get the current touch position
+        animate();
 
-            // Determine the direction of movement based on touch position
-            if (touchEndX > touchStartX && playerX < canvas.width - playerWidth) {
-                // Move right
-                playerX += playerSpeed;
-            } else if (touchEndX < touchStartX && playerX > 0) {
-                // Move left
-                playerX -= playerSpeed;
-            }
-
-            touchStartX = touchEndX; // Update the starting position for the next move
-        }
-
-        function touchEndHandler(e) {
-            // Reset the touch position when touch ends
-            touchStartX = 0;
-            touchEndX = 0;
-        }
-
-        function drawPlayer() {
-            ctx.beginPath();
-            ctx.rect(playerX, playerY, playerWidth, playerHeight); // Draw player as a blue block
-            ctx.fillStyle = "#00F";
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function drawCoin() {
-            ctx.beginPath();
-            ctx.rect(coinX, coinY, coinWidth, coinHeight);
-            ctx.fillStyle = "#FFD700";
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function drawObstacle() {
-            ctx.beginPath();
-            ctx.rect(obstacleX, obstacleY, obstacleWidth, obstacleHeight);
-            ctx.fillStyle = "#FF0000";
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function detectCollisions() {
-            // Check collision with coin
-            if (playerX < coinX + coinWidth &&
-                playerX + playerWidth > coinX &&
-                playerY < coinY + coinHeight &&
-                playerY + playerHeight > coinY) {
-                score++;
-                coinY = -coinHeight; // Reset coin
-                coinX = Math.random() * (canvas.width - coinWidth); // New random position
-            }
-
-            // Check collision with obstacle
-            if (playerX < obstacleX + obstacleWidth &&
-                playerX + playerWidth > obstacleX &&
-                playerY < obstacleY + obstacleHeight &&
-                playerY + playerHeight > obstacleY) {
-                isGameOver = true;
-            }
-        }
-
-        function moveCoin() {
-            coinY += coinSpeed;
-            if (coinY > canvas.height) {
-                coinY = -coinHeight;
-                coinX = Math.random() * (canvas.width - coinWidth); // Random new position
-            }
-        }
-
-        function moveObstacle() {
-            obstacleY += obstacleSpeed;
-            if (obstacleY > canvas.height) {
-                obstacleY = -obstacleHeight;
-                obstacleX = Math.random() * (canvas.width - obstacleWidth); // New random position
-            }
-        }
-
-        function drawScore() {
-            ctx.font = "16px Arial";
-            ctx.fillStyle = "#000";
-            ctx.fillText("Score: " + score, 8, 20);
-        }
-
-        function gameOver() {
-            ctx.font = "30px Arial";
-            ctx.fillStyle = "#FF0000";
-            ctx.fillText("GAME OVER!", canvas.width / 2 - 100, canvas.height / 2);
-        }
-
-        function draw() {
-            if (isGameOver) {
-                gameOver();
-                return;
-            }
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear the canvas
-            drawPlayer(); // Draw the player as a blue block
-            drawCoin();   // Draw the coin
-            drawObstacle(); // Draw the obstacle
-            drawScore(); // Display the score
-            detectCollisions();
-            moveCoin();
-            moveObstacle();
-
-            requestAnimationFrame(draw); // Keep the game loop running
-        }
-
-        draw(); // Start the game loop
-
+        // Resize the canvas on window resize
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
     </script>
 </body>
 </html>
