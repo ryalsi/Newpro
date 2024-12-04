@@ -28,31 +28,41 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
 const loader = new GLTFLoader();
-loader.load(
-  'models/monkey.glb', // Make sure this path is correct for your project
-  function (gltf) {
-    // Traverse through the model to set shadows on meshes and lights
-    gltf.scene.traverse(function (child) {
-      if (child.isMesh) {
-        child.receiveShadow = true;
-        child.castShadow = true;
+
+// Handle file selection
+const fileInput = document.getElementById('file-input');
+fileInput.addEventListener('change', handleFileSelect, false);
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const arrayBuffer = e.target.result;
+    
+    // Load the GLTF model
+    loader.parse(arrayBuffer, '', function (gltf) {
+      // Clear the previous model if any
+      while (scene.children.length > 0) {
+        scene.remove(scene.children[0]);
       }
-      if (child.isLight) {
-        child.castShadow = true;
-        child.shadow.bias = -.003;
-        child.shadow.mapSize.width = 2048;
-        child.shadow.mapSize.height = 2048;
-      }
+
+      // Traverse and add shadows to meshes
+      gltf.scene.traverse(function (child) {
+        if (child.isMesh) {
+          child.receiveShadow = true;
+          child.castShadow = true;
+        }
+      });
+
+      scene.add(gltf.scene);
+    }, function (error) {
+      console.error('Error loading model:', error);
     });
-    scene.add(gltf.scene);
-  },
-  (xhr) => {
-    console.log((xhr.loaded / xhr.total) * 100 + '% loaded');
-  },
-  (error) => {
-    console.log(error);
-  }
-);
+  };
+  reader.readAsArrayBuffer(file);
+}
 
 window.addEventListener('resize', onWindowResize, false);
 
