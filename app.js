@@ -13,73 +13,58 @@ controls.dampingFactor = 0.25;
 controls.screenSpacePanning = false;
 controls.maxPolarAngle = Math.PI / 2;
 
-// Create a basic cube
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-let cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
-
 // Position the camera
 camera.position.z = 5;
 
-// Variables for transformations
-let rotationSpeed = 0.01;
-let scaleFactor = 1.1;
+// Create a default light
+const light = new THREE.AmbientLight(0x404040, 1); // Ambient light
+scene.add(light);
+
+// Handle file input for loading models
+const fileInput = document.getElementById('fileInput');
+const loadModelButton = document.getElementById('loadModelButton');
+let loadedModel = null;
+
+// Set up GLTFLoader
+const loader = new THREE.GLTFLoader();
+
+// Function to handle model loading
+function loadModel(file) {
+    // Read the file and load it using GLTFLoader
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        const contents = event.target.result;
+        loader.parse(contents, '', function (gltf) {
+            if (loadedModel) {
+                scene.remove(loadedModel); // Remove any existing model
+            }
+            loadedModel = gltf.scene;
+            scene.add(loadedModel);
+        }, function (error) {
+            console.error('Error loading model', error);
+        });
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// Open file dialog when button is clicked
+loadModelButton.addEventListener("click", function() {
+    fileInput.click();
+});
+
+// Load the selected model when a file is chosen
+fileInput.addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        loadModel(file);
+    }
+});
 
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotate the cube
-    cube.rotation.x += rotationSpeed;
-    cube.rotation.y += rotationSpeed;
-
     controls.update(); // Update controls
-
     renderer.render(scene, camera);
 }
 animate();
-
-// Button functionality
-document.getElementById("rotateButton").addEventListener("click", function () {
-    rotationSpeed = rotationSpeed ? 0 : 0.01; // Toggle rotation
-});
-
-document.getElementById("scaleButton").addEventListener("click", function () {
-    cube.scale.set(scaleFactor, scaleFactor, scaleFactor);
-});
-
-document.getElementById("resetButton").addEventListener("click", function () {
-    cube.rotation.set(0, 0, 0); // Reset rotation
-    cube.scale.set(1, 1, 1); // Reset scale
-});
-
-// Functions to add complex 3D objects
-function addSphere() {
-    const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
-    const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    sphere.position.set(2, 0, 0); // Position the sphere to the right of the cube
-    scene.add(sphere);
-}
-
-function addCone() {
-    const coneGeometry = new THREE.ConeGeometry(1, 2, 32);
-    const coneMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const cone = new THREE.Mesh(coneGeometry, coneMaterial);
-    cone.position.set(-2, 0, 0); // Position the cone to the left of the cube
-    scene.add(cone);
-}
-
-function addTorus() {
-    const torusGeometry = new THREE.TorusGeometry(1, 0.4, 16, 100);
-    const torusMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-    const torus = new THREE.Mesh(torusGeometry, torusMaterial);
-    torus.position.set(0, 2, 0); // Position the torus above the cube
-    scene.add(torus);
-}
-
-// Event listeners for adding complex 3D objects
-document.getElementById("addSphereButton").addEventListener("click", addSphere);
-document.getElementById("addConeButton").addEventListener("click", addCone);
-document.getElementById("addTorusButton").addEventListener("click", addTorus);
