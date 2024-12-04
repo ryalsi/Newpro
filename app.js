@@ -28,9 +28,8 @@ let loadedModel = null;
 // Set up GLTFLoader
 const loader = new THREE.GLTFLoader();
 
-// Function to handle model loading
+// Function to handle model loading asynchronously
 function loadModel(file) {
-    // Read the file and load it using GLTFLoader
     const reader = new FileReader();
     reader.onload = function (event) {
         const contents = event.target.result;
@@ -68,3 +67,20 @@ function animate() {
     renderer.render(scene, camera);
 }
 animate();
+
+// Throttle example for performance optimization (like button event handlers)
+// This can be added to event handlers if they're triggering expensive actions
+function throttle(callback, delay) {
+    let lastCall = 0;
+    return function () {
+        const now = Date.now();
+        if (now - lastCall >= delay) {
+            lastCall = now;
+            callback.apply(this, arguments);
+        }
+    };
+}
+
+document.getElementById("rotateButton").addEventListener("click", throttle(function () {
+    // Perform rotate actions here
+}, 200));
