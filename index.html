@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Modeling Interface</title>
+    <title>Prisma 3D - Enhanced 3D Modeling Interface</title>
     <style>
         /* General Styling */
         body {
@@ -27,15 +27,16 @@
             display: flex;
             flex: 1;
             overflow: hidden;
+            position: relative;
         }
 
-        /* Sliding menu */
+        /* Sidebar styling */
         .sidebar {
             position: fixed;
-            bottom: -50%; /* Hidden initially */
+            bottom: -50%;
             left: 0;
             width: 100%;
-            height: 50%; /* Half screen height */
+            height: 50%;
             background-color: #f4f4f4;
             padding: 20px;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
@@ -48,7 +49,7 @@
         }
 
         .sidebar.open {
-            bottom: 0; /* Slide into view */
+            bottom: 0;
         }
 
         /* Buttons */
@@ -69,7 +70,6 @@
             background-color: #666;
         }
 
-        /* Menu toggle button */
         .toggle-button {
             position: fixed;
             bottom: 15px;
@@ -85,20 +85,18 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
 
-        /* Viewport for 3D model viewing */
+        /* Viewport for 3D rendering */
         .viewport {
             flex: 1;
             background-color: #000;
             color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             position: relative;
         }
 
-        .viewport canvas {
+        canvas {
             width: 100%;
             height: 100%;
+            display: block;
         }
 
         /* Footer toolbar */
@@ -112,13 +110,6 @@
             display: flex;
             justify-content: space-evenly;
         }
-
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .sidebar {
-                height: 60%; /* Increase height slightly for small screens */
-            }
-        }
     </style>
 </head>
 <body>
@@ -130,42 +121,25 @@
 <!-- Toggle Sidebar Button -->
 <button class="toggle-button" onclick="toggleSidebar()">↑</button>
 
-<!-- Sidebar with tool palette, timeline, and property editor -->
+<!-- Sidebar with tool options -->
 <div class="sidebar" id="sidebar">
     <div class="tool-palette">
         <h3>Tool Palette</h3>
-        <button>Box</button>
-        <button>Sphere</button>
-        <button>Cylinder</button>
-        <button>Plane</button>
-        <button>Extrude</button>
-        <button>Bevel</button>
-        <button>Sculpting</button>
-        <button>Modifiers</button>
-    </div>
-    <div class="timeline">
-        <h3>Timeline</h3>
-        <button>Play</button>
-        <button>Stop</button>
-        <button>Set Keyframe</button>
-    </div>
-    <div class="property-editor">
-        <h3>Property Editor</h3>
-        <button>Edit Position</button>
-        <button>Edit Rotation</button>
-        <button>Edit Scale</button>
-        <button>Edit Material</button>
+        <button onclick="addBox()">Add Box</button>
+        <button onclick="addSphere()">Add Sphere</button>
+        <button onclick="addLight()">Add Light</button>
+        <button onclick="addCamera()">Add Camera</button>
     </div>
 </div>
 
-<!-- Main Viewport -->
+<!-- Main 3D Viewport -->
 <div class="main-content">
     <div class="viewport">
         <canvas id="viewportCanvas"></canvas>
     </div>
 </div>
 
-<!-- Footer -->
+<!-- Footer Toolbar -->
 <div class="footer">
     <div class="toolbar">
         <button>Modeling</button>
@@ -176,6 +150,7 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r146/three.min.js"></script>
 <script>
     // Sidebar toggle functionality
     function toggleSidebar() {
@@ -183,9 +158,65 @@
         const toggleButton = document.querySelector(".toggle-button");
 
         sidebar.classList.toggle("open");
-        // Change button text/icon based on menu state
         toggleButton.textContent = sidebar.classList.contains("open") ? "↓" : "↑";
     }
+
+    // Setup Three.js Scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('viewportCanvas') });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Add a grid helper and ambient light to the scene
+    const gridHelper = new THREE.GridHelper(20, 20);
+    scene.add(gridHelper);
+
+    const ambientLight = new THREE.AmbientLight(0x404040); // Soft white light
+    scene.add(ambientLight);
+
+    camera.position.z = 5;
+
+    // Animation loop
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // Add objects dynamically
+    function addBox() {
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+        const box = new THREE.Mesh(geometry, material);
+        scene.add(box);
+    }
+
+    function addSphere() {
+        const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+        const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+    }
+
+    function addLight() {
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+    }
+
+    function addCamera() {
+        const newCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        newCamera.position.set(0, 5, 5);
+        scene.add(newCamera);
+    }
+
+    // Adjust viewport on resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
 </script>
 
 </body>
