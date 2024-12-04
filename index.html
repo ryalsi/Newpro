@@ -109,13 +109,15 @@
         }
 
         .footer .toolbar {
-            display: flex;
-            justify-content: space-evenly;
-            gap: 10px;  /* Added spacing between footer buttons */
+    display: flex;
+    justify-content: space-evenly;  /* Already set, keeps even spacing */
+    align-items: center;  /* Add this to center buttons vertically */
         }
 
         .footer .toolbar button {
-            width: 20%;  /* Ensure buttons in the footer do not overflow */
+    width: 15%; /* Adjust as needed */
+    /* OR */
+    /* width: auto; */
         }
 
         /* Sidebar UI Elements */
