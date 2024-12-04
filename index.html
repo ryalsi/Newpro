@@ -3,88 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
-    <link rel="stylesheet" href="style.css">
+    <title>3D Web App</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-    <!-- Chatbot Toggle Button -->
-    <div class="chatbot-toggler">Chatbot</div>
-
-    <!-- Chatbox -->
-    <div class="chatbox">
-        <button class="close-btn">X</button>
-        <ul class="chat-list"></ul>
-        <div class="chat-input">
-            <textarea placeholder="Type a message..."></textarea>
-            <span>Send</span>
-        </div>
+    <div id="container">
+        <canvas id="webglCanvas"></canvas>
     </div>
 
-    <!-- JavaScript -->
-    <script>
-        const chatbotToggler = document.querySelector(".chatbot-toggler");
-        const closeBtn = document.querySelector(".close-btn");
-        const chatbox = document.querySelector(".chatbox");
-        const chatInput = document.querySelector(".chat-input textarea");
-        const sendChatBtn = document.querySelector(".chat-input span");
+    <div id="controls">
+        <button id="rotateButton">Rotate</button>
+        <button id="scaleButton">Scale</button>
+        <button id="resetButton">Reset</button>
+    </div>
 
-        let userMessage = null;
-        const inputInitHeight = chatInput.scrollHeight;
-
-        const createChatLi = (message, className) => {
-            const chatLi = document.createElement("li");
-            chatLi.classList.add("chat", className);
-            let chatContent = className === "outgoing" ? `<p></p>` : `<span class="material-symbols-outlined">smart_toy</span><p></p>`;
-            chatLi.innerHTML = chatContent;
-            chatLi.querySelector("p").textContent = message;
-            return chatLi;
-        };
-
-        const handleChat = () => {
-            userMessage = chatInput.value.trim();
-            if (!userMessage) return;
-
-            chatInput.value = "";
-            chatInput.style.height = `${inputInitHeight}px`;
-
-            chatbox.appendChild(createChatLi(userMessage, "outgoing"));
-            chatbox.scrollTo(0, chatbox.scrollHeight);
-
-            setTimeout(() => {
-                const incomingChatLi = createChatLi("Thinking...", "incoming");
-                chatbox.appendChild(incomingChatLi);
-                chatbox.scrollTo(0, chatbox.scrollHeight);
-
-                setTimeout(() => {
-                    incomingChatLi.querySelector("p").textContent = "This is a simulated response.";
-                    chatbox.scrollTo(0, chatbox.scrollHeight);
-                }, 1000);
-            }, 600);
-        };
-
-        chatInput.addEventListener("input", () => {
-            chatInput.style.height = `${inputInitHeight}px`;
-            chatInput.style.height = `${chatInput.scrollHeight}px`;
-        });
-
-        chatInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
-                e.preventDefault();
-                handleChat();
-            }
-        });
-
-        sendChatBtn.addEventListener("click", handleChat);
-
-        closeBtn.addEventListener("click", () => {
-            document.body.classList.remove("show-chatbot");
-        });
-
-        chatbotToggler.addEventListener("click", () => {
-            document.body.classList.toggle("show-chatbot");
-        });
-    </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
