@@ -7,10 +7,18 @@
     <style>
         body { margin: 0; }
         canvas { display: block; }
+        input[type="file"] {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
-    <!-- The Three.js canvas will be appended here -->
+    <!-- File input to select a GLTF/GLB model -->
+    <input type="file" id="file-input" accept=".gltf, .glb" />
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/examples/js/loaders/GLTFLoader.js"></script>
