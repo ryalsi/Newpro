@@ -65,6 +65,7 @@
             text-align: center;
             transition: background-color 0.3s ease;
             width: 100%;  /* Ensure buttons fill their container */
+            box-sizing: border-box;
         }
 
         button:hover {
@@ -131,7 +132,7 @@
 <div class="sidebar" id="sidebar">
     <div class="tool-palette">
         <h3>Tool Palette</h3>
-        <button onclick="addBox()">🟥 Add Box</button>
+        <button onclick="addBox()">🟥 Add Cube</button>
         <button onclick="addSphere()">⚪ Add Sphere</button>
         <button onclick="addLight()">💡 Add Light</button>
         <button onclick="addCamera()">📷 Add Camera</button>
@@ -204,7 +205,7 @@
 
     function addBox() {
         const geometry = new THREE.BoxGeometry();
-        const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+        const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); // Green cube
         const box = new THREE.Mesh(geometry, material);
         box.position.set(randomPosition(), randomPosition(), randomPosition());
         box.castShadow = true;
@@ -213,7 +214,7 @@
 
     function addSphere() {
         const geometry = new THREE.SphereGeometry(0.5, 32, 32);
-        const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+        const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 }); // Green sphere
         const sphere = new THREE.Mesh(geometry, material);
         sphere.position.set(randomPosition(), randomPosition(), randomPosition());
         sphere.castShadow = true;
@@ -221,16 +222,24 @@
     }
 
     function addLight() {
+        const geometry = new THREE.SphereGeometry(0.2, 16, 16); // Green sphere for light
+        const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+        const lightObject = new THREE.Mesh(geometry, material);
+        lightObject.position.set(randomPosition(), randomPosition(), randomPosition());
+        scene.add(lightObject);
+
         const light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(randomPosition(), randomPosition(), randomPosition());
+        light.position.set(lightObject.position.x, lightObject.position.y, lightObject.position.z);
         light.castShadow = true;
         scene.add(light);
     }
 
     function addCamera() {
-        const newCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        newCamera.position.set(randomPosition(), randomPosition(), randomPosition());
-        scene.add(newCamera);
+        const geometry = new THREE.ConeGeometry(0.2, 1, 32); // Green cone for camera
+        const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+        const cameraObject = new THREE.Mesh(geometry, material);
+        cameraObject.position.set(randomPosition(), randomPosition(), randomPosition());
+        scene.add(cameraObject);
     }
 
     // Adjust viewport on resize
