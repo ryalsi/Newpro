@@ -3,73 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Axes with Rotation and Scaling</title>
+  <title>3D Debugging Test</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-    canvas {
-      display: block;
-    }
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r142/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.142.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 <script>
-  // Scene setup
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  try {
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-  // Axes helper
-  const axesHelper = new THREE.AxesHelper(5);
-  scene.add(axesHelper);
+    // Add a simple cube for testing
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
 
-  // Green arrows for each axis
-  const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  const arrowGeometry = new THREE.ConeGeometry(0.1, 0.5, 8);
+    // Add controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-  const arrowX = new THREE.Mesh(arrowGeometry, arrowMaterial);
-  arrowX.position.set(5, 0, 0);
-  arrowX.rotation.z = -Math.PI / 2; // Point along X-axis
-  scene.add(arrowX);
+    // Set camera position
+    camera.position.z = 5;
 
-  const arrowY = new THREE.Mesh(arrowGeometry, arrowMaterial);
-  arrowY.position.set(0, 5, 0); // Point along Y-axis
-  scene.add(arrowY);
-
-  const arrowZ = new THREE.Mesh(arrowGeometry, arrowMaterial);
-  arrowZ.position.set(0, 0, 5);
-  arrowZ.rotation.x = Math.PI / 2; // Point along Z-axis
-  scene.add(arrowZ);
-
-  // Add OrbitControls for rotation
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-  // Camera position
-  camera.position.z = 10;
-
-  // Scaling function
-  const scaleFactor = 1.5; // Adjust this factor for scaling
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 's') { // Scale up on pressing 's'
-      scene.scale.multiplyScalar(scaleFactor);
-    } else if (event.key === 'd') { // Scale down on pressing 'd'
-      scene.scale.multiplyScalar(1 / scaleFactor);
+    // Render loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
     }
-  });
+    animate();
 
-  // Render loop
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
+    console.log('Scene loaded successfully.');
+  } catch (error) {
+    console.error('Error initializing 3D scene:', error);
   }
-  animate();
 </script>
 </body>
 </html>
