@@ -14,19 +14,15 @@
             <canvas id="webglCanvas"></canvas>
         </div>
 
-        
-    <div id="container">
-        <canvas id="webglCanvas"></canvas>
-    </div>
+        <div id="controls">
+            <button id="rotateButton">Rotate</button>
+            <button id="scaleButton">Scale</button>
+            <button id="resetButton">Reset</button>
+            <button id="loadModelButton">Load 3D Model</button>
+        </div>
 
-    <div id="controls">
-        <button id="rotateButton">Rotate</button>
-        <button id="scaleButton">Scale</button>
-        <button id="resetButton">Reset</button>
-        <button id="loadModelButton">Load 3D Model</button>
-    </div>
-
-    <input type="file" id="fileInput" style="display: none;" accept=".glb,.gltf" />
+        <input type="file" id="fileInput" style="display: none;" accept=".glb,.gltf" />
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/examples/js/loaders/GLTFLoader.js"></script>
