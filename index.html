@@ -254,12 +254,22 @@
     }
 
     function addCamera() {
-        const geometry = new THREE.ConeGeometry(0.2, 1, 32);
-        const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-        const cameraObject = new THREE.Mesh(geometry, material);
-        cameraObject.position.set(randomPosition(), randomPosition(), randomPosition());
-        scene.add(cameraObject);
-    }
+    // Create a green cone to represent the camera
+    const geometry = new THREE.ConeGeometry(0.2, 1, 32); 
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
+    const cameraObject = new THREE.Mesh(geometry, material);
+
+    // Set a random position for the camera object
+    cameraObject.position.set(randomPosition(), randomPosition(), randomPosition());
+    scene.add(cameraObject);
+
+    // Update the actual camera's position and orientation based on the new cameraObject
+    camera.position.copy(cameraObject.position);
+
+    // Optionally, update the camera's lookAt direction to point at the origin or some other point
+    camera.lookAt(0, 0, 0);  // Example: make the camera look at the origin
+}
+
 
     function addObject() {
         const selectedObject = document.getElementById('objectSelector').value;
