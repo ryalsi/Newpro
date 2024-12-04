@@ -3,39 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Android Three.js Test</title>
+  <title>3D Lines and Planes</title>
   <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+    canvas {
+      display: block;
+    }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r142/three.min.js"></script>
 </head>
 <body>
-<script>
-  // Basic Three.js setup
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  <canvas id="canvas"></canvas>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-  // Add a simple cube
-  const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-  const cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
+    // Set canvas size
+    canvas.width = 600;
+    canvas.height = 600;
 
-  // Set camera position
-  camera.position.z = 5;
+    // Convert cm to pixels (1 cm = 37.8 px)
+    const cmToPx = 37.8;
 
-  // Animate the scene
-  function animate() {
-    requestAnimationFrame(animate);
-    cube.rotation.x += 0.01; // Rotate the cube
-    cube.rotation.y += 0.01;
-    renderer.render(scene, camera);
-  }
-  animate();
-</script>
+    // Center point
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Draw X-axis (red line)
+    ctx.strokeStyle = 'red';
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(centerX + cmToPx, centerY);
+    ctx.stroke();
+
+    // Draw Y-axis (green line)
+    ctx.strokeStyle = 'green';
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(centerX, centerY - cmToPx);
+    ctx.stroke();
+
+    // Draw Z-axis (blue line - projected in 2D for simplicity)
+    ctx.strokeStyle = 'blue';
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(centerX + cmToPx * Math.cos(Math.PI / 4), centerY - cmToPx * Math.sin(Math.PI / 4));
+    ctx.stroke();
+
+    // Draw square in XY plane
+    ctx.strokeStyle = 'black';
+    ctx.strokeRect(centerX, centerY - cmToPx, cmToPx, cmToPx);
+
+    // Fill square with smaller squares (5x5 grid for simplicity)
+    const numSmallSquares = 5;
+    const smallSquareSize = cmToPx / numSmallSquares;
+    for (let i = 0; i < numSmallSquares; i++) {
+      for (let j = 0; j < numSmallSquares; j++) {
+        ctx.strokeRect(
+          centerX + i * smallSquareSize,
+          centerY - cmToPx + j * smallSquareSize,
+          smallSquareSize,
+          smallSquareSize
+        );
+      }
+    }
+
+    // Fill plane (e.g., entire canvas area with squares)
+    const planeSquareSize = cmToPx / 2; // Smaller squares for the plane
+    for (let x = 0; x < canvas.width; x += planeSquareSize) {
+      for (let y = 0; y < canvas.height; y += planeSquareSize) {
+        ctx.strokeStyle = 'gray';
+        ctx.strokeRect(x, y, planeSquareSize, planeSquareSize);
+      }
+    }
+  </script>
 </body>
 </html>
