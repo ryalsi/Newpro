@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Modeling Interface</title>
     <style>
-        /* General body styling */
+        /* General styling */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -13,94 +13,114 @@
             flex-direction: column;
             height: 100vh;
         }
+
         header {
             background-color: #333;
             color: white;
             padding: 15px;
             text-align: center;
         }
-        
+
         /* Main content layout */
         .main-content {
             display: flex;
             flex: 1;
+            flex-direction: column;
             overflow: hidden;
         }
-        
+
         /* Sidebar styling for tool palette, timeline, and property editor */
         .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: -250px; /* Hidden initially */
             width: 250px;
             background-color: #f4f4f4;
             padding: 10px;
             height: 100%;
             overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
             display: flex;
             flex-direction: column;
             gap: 20px;
+            transition: left 0.3s ease-in-out;
         }
-        
-        /* Tool Palette and other sections in the sidebar */
-        .tool-palette, .timeline, .property-editor {
-            background-color: #e0e0e0;
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+
+        .sidebar.open {
+            left: 0; /* Slide into view */
         }
-        
-        /* Buttons for tool palette and other sections */
+
+        /* Buttons */
         button {
-            background-color: #666;
+            background-color: #444;
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 12px 20px;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.3s;
         }
+
         button:hover {
-            background-color: #888;
+            background-color: #666;
+        }
+
+        /* Toolbar button for toggling the sidebar */
+        .toggle-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: #444;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 10;
+            cursor: pointer;
         }
 
         /* Viewport for 3D model viewing */
         .viewport {
             flex: 1;
             background-color: #000;
-            position: relative;
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
+
         .viewport canvas {
             width: 100%;
             height: 100%;
-            border: 1px solid #444;
         }
 
-        /* Footer with toolbar */
+        /* Footer toolbar */
         .footer {
             background-color: #333;
             color: white;
             padding: 10px;
         }
-        
-        .toolbar {
+
+        .footer .toolbar {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: space-evenly;
         }
-        
-        /* Layout adjustment for small screens */
+
+        /* Mobile adjustments */
         @media (max-width: 768px) {
+            .sidebar {
+                width: 200px; /* Narrower sidebar */
+            }
             .main-content {
                 flex-direction: column;
             }
-            .sidebar {
-                width: 100%;
-            }
         }
-
     </style>
 </head>
 <body>
@@ -109,51 +129,45 @@
     <h1>Prisma 3D - 3D Modeling & Animation</h1>
 </header>
 
-<!-- Main content layout -->
-<div class="main-content">
-    <!-- Sidebar with tool palette, timeline, and property editor -->
-    <div class="sidebar">
-        <!-- Tool Palette -->
-        <div class="tool-palette">
-            <h3>Tool Palette</h3>
-            <button>Box</button>
-            <button>Sphere</button>
-            <button>Cylinder</button>
-            <button>Plane</button>
-            <button>Extrude</button>
-            <button>Bevel</button>
-            <button>Sculpting</button>
-            <button>Modifiers</button>
-        </div>
-        
-        <!-- Timeline (appears in Animation mode) -->
-        <div class="timeline">
-            <h3>Timeline</h3>
-            <p>Keyframes and animation controls.</p>
-            <button>Play</button>
-            <button>Stop</button>
-            <button>Set Keyframe</button>
-        </div>
-        
-        <!-- Property Editor -->
-        <div class="property-editor">
-            <h3>Property Editor</h3>
-            <p>Position, Rotation, Scale, Materials</p>
-            <button>Edit Position</button>
-            <button>Edit Rotation</button>
-            <button>Edit Scale</button>
-            <button>Edit Material</button>
-        </div>
-    </div>
+<!-- Toggle Sidebar Button -->
+<button class="toggle-button" onclick="toggleSidebar()">☰ Menu</button>
 
-    <!-- Main Viewport area -->
-    <div class="viewport">
-        <canvas id="viewportCanvas"></canvas>
-        <div class="viewport-overlay">3D View</div>
+<!-- Sidebar with tool palette, timeline, and property editor -->
+<div class="sidebar" id="sidebar">
+    <div class="tool-palette">
+        <h3>Tool Palette</h3>
+        <button>Box</button>
+        <button>Sphere</button>
+        <button>Cylinder</button>
+        <button>Plane</button>
+        <button>Extrude</button>
+        <button>Bevel</button>
+        <button>Sculpting</button>
+        <button>Modifiers</button>
+    </div>
+    <div class="timeline">
+        <h3>Timeline</h3>
+        <button>Play</button>
+        <button>Stop</button>
+        <button>Set Keyframe</button>
+    </div>
+    <div class="property-editor">
+        <h3>Property Editor</h3>
+        <button>Edit Position</button>
+        <button>Edit Rotation</button>
+        <button>Edit Scale</button>
+        <button>Edit Material</button>
     </div>
 </div>
 
-<!-- Footer with Toolbar for additional controls -->
+<!-- Main Viewport -->
+<div class="main-content">
+    <div class="viewport">
+        <canvas id="viewportCanvas"></canvas>
+    </div>
+</div>
+
+<!-- Footer -->
 <div class="footer">
     <div class="toolbar">
         <button>Modeling</button>
@@ -164,5 +178,7 @@
     </div>
 </div>
 
-</body>
-</html>
+<script>
+    // Sidebar toggle functionality
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
