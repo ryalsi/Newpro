@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Modeling Interface</title>
     <style>
-        /* General styling */
+        /* General Styling */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
         }
 
         header {
@@ -25,30 +26,29 @@
         .main-content {
             display: flex;
             flex: 1;
-            flex-direction: column;
             overflow: hidden;
         }
 
-        /* Sidebar styling for tool palette, timeline, and property editor */
+        /* Sliding menu */
         .sidebar {
             position: fixed;
-            top: 0;
-            bottom: 0;
-            left: -250px; /* Hidden initially */
-            width: 250px;
+            bottom: -50%; /* Hidden initially */
+            left: 0;
+            width: 100%;
+            height: 50%; /* Half screen height */
             background-color: #f4f4f4;
-            padding: 10px;
-            height: 100%;
+            padding: 20px;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
             overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+            transition: bottom 0.3s ease-in-out;
+            z-index: 10;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            transition: left 0.3s ease-in-out;
+            gap: 15px;
         }
 
         .sidebar.open {
-            left: 0; /* Slide into view */
+            bottom: 0; /* Slide into view */
         }
 
         /* Buttons */
@@ -62,26 +62,27 @@
             font-size: 14px;
             font-weight: bold;
             text-align: center;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
             background-color: #666;
         }
 
-        /* Toolbar button for toggling the sidebar */
+        /* Menu toggle button */
         .toggle-button {
             position: fixed;
-            top: 15px;
-            left: 15px;
+            bottom: 15px;
+            right: 15px;
             background-color: #444;
             color: white;
             border: none;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            z-index: 10;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 20px;
+            z-index: 20;
             cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
 
         /* Viewport for 3D model viewing */
@@ -115,10 +116,7 @@
         /* Mobile adjustments */
         @media (max-width: 768px) {
             .sidebar {
-                width: 200px; /* Narrower sidebar */
-            }
-            .main-content {
-                flex-direction: column;
+                height: 60%; /* Increase height slightly for small screens */
             }
         }
     </style>
@@ -130,7 +128,7 @@
 </header>
 
 <!-- Toggle Sidebar Button -->
-<button class="toggle-button" onclick="toggleSidebar()">☰ Menu</button>
+<button class="toggle-button" onclick="toggleSidebar()">↑</button>
 
 <!-- Sidebar with tool palette, timeline, and property editor -->
 <div class="sidebar" id="sidebar">
@@ -182,7 +180,11 @@
     // Sidebar toggle functionality
     function toggleSidebar() {
         const sidebar = document.getElementById("sidebar");
+        const toggleButton = document.querySelector(".toggle-button");
+
         sidebar.classList.toggle("open");
+        // Change button text/icon based on menu state
+        toggleButton.textContent = sidebar.classList.contains("open") ? "↓" : "↑";
     }
 </script>
 
