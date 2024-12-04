@@ -3,30 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Web App</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Three.js GLTF Model Loader</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
 </head>
 <body>
-
-    <!-- Landmark: Main content of the page -->
-    <main id="main-content">
-        <div id="container">
-            <canvas id="webglCanvas"></canvas>
-        </div>
-
-        <div id="controls">
-            <button id="rotateButton">Rotate</button>
-            <button id="scaleButton">Scale</button>
-            <button id="resetButton">Reset</button>
-            <button id="loadModelButton">Load 3D Model</button>
-        </div>
-
-        <input type="file" id="fileInput" style="display: none;" accept=".glb,.gltf" />
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- The Three.js canvas will be appended here -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r158/examples/js/libs/stats.module.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
