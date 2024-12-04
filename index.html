@@ -4,68 +4,64 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3D Axes and Plane</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r146/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r146/examples/js/controls/OrbitControls.js"></script>
+  <!-- Correct Three.js and OrbitControls URLs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/146/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/146/examples/js/controls/OrbitControls.min.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
   <script>
-    try {
-      // Set up the scene, camera, and renderer
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+    // Set up the scene, camera, and renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-      // Add orbit controls for 360° rotation
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // Add orbit controls for 360° rotation
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-      // Axes: X (Red), Y (Green), Z (Blue)
-      const axesLength = 10; // Length of axes in units
-      const createAxis = (dir, color) => {
-        const material = new THREE.LineBasicMaterial({ color });
-        const points = [new THREE.Vector3(0, 0, 0), dir];
-        const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        return new THREE.Line(geometry, material);
-      };
-      scene.add(createAxis(new THREE.Vector3(axesLength, 0, 0), 0xff0000)); // X-axis
-      scene.add(createAxis(new THREE.Vector3(0, axesLength, 0), 0x00ff00)); // Y-axis
-      scene.add(createAxis(new THREE.Vector3(0, 0, axesLength), 0x0000ff)); // Z-axis
+    // Axes: X (Red), Y (Green), Z (Blue)
+    const axesLength = 10; // Length of axes in units
+    const createAxis = (dir, color) => {
+      const material = new THREE.LineBasicMaterial({ color });
+      const points = [new THREE.Vector3(0, 0, 0), dir];
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      return new THREE.Line(geometry, material);
+    };
+    scene.add(createAxis(new THREE.Vector3(axesLength, 0, 0), 0xff0000)); // X-axis
+    scene.add(createAxis(new THREE.Vector3(0, axesLength, 0), 0x00ff00)); // Y-axis
+    scene.add(createAxis(new THREE.Vector3(0, 0, axesLength), 0x0000ff)); // Z-axis
 
-      // Plane with small squares
-      const planeSize = 10; // Size of the plane in units
-      const squareSize = 1; // Size of each small square
-      const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize, planeSize / squareSize, planeSize / squareSize);
-      const planeMaterial = new THREE.MeshBasicMaterial({
-        color: 0xcccccc,
-        wireframe: true,
-      });
-      const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-      plane.rotation.x = -Math.PI / 2; // Rotate plane to lie on the XZ plane
-      scene.add(plane);
+    // Plane with small squares
+    const planeSize = 10; // Size of the plane in units
+    const squareSize = 1; // Size of each small square
+    const planeGeometry = new THREE.PlaneGeometry(planeSize, planeSize, planeSize / squareSize, planeSize / squareSize);
+    const planeMaterial = new THREE.MeshBasicMaterial({
+      color: 0xcccccc,
+      wireframe: true,
+    });
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    plane.rotation.x = -Math.PI / 2; // Rotate plane to lie on the XZ plane
+    scene.add(plane);
 
-      // Set up camera position
-      camera.position.set(10, 10, 10);
+    // Set up camera position
+    camera.position.set(10, 10, 10);
+    controls.update();
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
       controls.update();
-
-      // Animation loop
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-      }
-      animate();
-
-      // Handle window resize
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    } catch (error) {
-      console.error("An error occurred while rendering the scene:", error);
-      document.body.innerHTML = "<h1>Error Rendering Scene</h1><pre>" + error.message + "</pre>";
+      renderer.render(scene, camera);
     }
+    animate();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   </script>
 </body>
 </html>
