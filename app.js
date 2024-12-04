@@ -30,29 +30,36 @@ const loader = new THREE.GLTFLoader();
 
 // Function to handle model loading asynchronously
 function loadModel(file) {
+    // Clear any previous model
+    if (loadedModel) {
+        scene.remove(loadedModel);
+    }
+
+    // Use FileReader to read the file as ArrayBuffer
     const reader = new FileReader();
     reader.onload = function (event) {
         const contents = event.target.result;
+        // Parse the model
         loader.parse(contents, '', function (gltf) {
-            if (loadedModel) {
-                scene.remove(loadedModel); // Remove any existing model
-            }
             loadedModel = gltf.scene;
             scene.add(loadedModel);
+            // Ensure the model is centered in the view
+            loadedModel.scale.set(1, 1, 1);  // Adjust the scale as needed
+            loadedModel.position.set(0, 0, 0);  // Adjust position if needed
         }, function (error) {
-            console.error('Error loading model', error);
+            console.error('Error loading model:', error);
         });
     };
     reader.readAsArrayBuffer(file);
 }
 
 // Open file dialog when button is clicked
-loadModelButton.addEventListener("click", function() {
+loadModelButton.addEventListener("click", function () {
     fileInput.click();
 });
 
 // Load the selected model when a file is chosen
-fileInput.addEventListener('change', function(event) {
+fileInput.addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (file) {
         loadModel(file);
@@ -62,25 +69,8 @@ fileInput.addEventListener('change', function(event) {
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
-
     controls.update(); // Update controls
     renderer.render(scene, camera);
 }
+
 animate();
-
-// Throttle example for performance optimization (like button event handlers)
-// This can be added to event handlers if they're triggering expensive actions
-function throttle(callback, delay) {
-    let lastCall = 0;
-    return function () {
-        const now = Date.now();
-        if (now - lastCall >= delay) {
-            lastCall = now;
-            callback.apply(this, arguments);
-        }
-    };
-}
-
-document.getElementById("rotateButton").addEventListener("click", throttle(function () {
-    // Perform rotate actions here
-}, 200));
