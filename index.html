@@ -35,10 +35,10 @@
             position: fixed;
             bottom: 0;
             left: 0;
-            width: 250px; /* Fixed width for sidebar */
+            width: 220px; /* Reduced width for sidebar */
             height: 50%;
             background-color: #f4f4f4;
-            padding: 15px;
+            padding: 10px;
             box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
             overflow-y: auto;
             transition: bottom 0.3s ease-in-out;
@@ -46,6 +46,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            box-sizing: border-box;
         }
 
         .sidebar.open {
@@ -57,7 +58,7 @@
             background-color: #444;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 8px 15px;  /* Reduced padding */
             cursor: pointer;
             border-radius: 5px;
             font-size: 14px;
@@ -116,16 +117,18 @@
         .footer .toolbar {
             display: flex;
             justify-content: space-evenly;
-            gap: 10px;  /* Added spacing between footer buttons */
+            gap: 10px;
         }
 
         .footer .toolbar button {
-            width: 18%;  /* Ensure buttons in the footer do not overflow */
+            width: 18%;
         }
 
         /* Sidebar UI Elements */
         select, input[type="color"] {
             margin-top: 10px;
+            padding: 5px;
+            width: 100%;
         }
     </style>
 </head>
@@ -220,21 +223,12 @@
     }
 
     function addBox() {
-        try {
-            const color = document.getElementById('colorPicker').value;
-            const geometry = new THREE.BoxGeometry();
-            const material = new THREE.MeshStandardMaterial({ color: color });
-            const box = new THREE.Mesh(geometry, material);
-            box.position.set(randomPosition(), randomPosition(), randomPosition());
-            scene.add(box);
-
-            // Add Transform Controls
-            const transformControl = new THREE.TransformControls(camera, renderer.domElement);
-            transformControl.attach(box);
-            scene.add(transformControl);
-        } catch (error) {
-            console.error("Error adding box:", error);
-        }
+        const color = document.getElementById('colorPicker').value;
+        const geometry = new THREE.BoxGeometry();
+        const material = new THREE.MeshStandardMaterial({ color: color });
+        const box = new THREE.Mesh(geometry, material);
+        box.position.set(randomPosition(), randomPosition(), randomPosition());
+        scene.add(box);
     }
 
     function addSphere() {
