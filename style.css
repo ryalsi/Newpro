@@ -1,122 +1,34 @@
-/* Basic body styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
-}
-
-/* Chatbot toggler button */
-.chatbot-toggler {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #007BFF;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Chatbox container */
-.chatbox {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    width: 300px;
-    max-width: 100%;
-    background: #fff;
-    border-top-left-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    display: none;
+    display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
 }
 
-/* Show the chatbox when active */
-.chatbox.show-chatbot {
+#container {
+    width: 80vw;
+    height: 70vh;
+    background-color: #ddd;
+}
+
+#controls {
+    margin-top: 20px;
     display: flex;
+    justify-content: space-between;
+    width: 50%;
 }
 
-/* Close button for the chatbox */
-.chatbox .close-btn {
-    align-self: flex-end;
-    background: transparent;
-    border: none;
-    font-size: 20px;
+button {
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
-}
-
-/* Chat messages list */
-.chat-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    overflow-y: auto;
-    flex-grow: 1;
-    max-height: 400px;
-}
-
-/* Chat message styles */
-.chat-list .chat {
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-}
-
-/* Outgoing message (user's message) */
-.chat-list .chat.outgoing {
-    background: #007BFF;
-    color: white;
-    text-align: right;
-}
-
-/* Incoming message (chatbot's response) */
-.chat-list .chat.incoming {
-    background: #f1f1f1;
-    color: black;
-    text-align: left;
-}
-
-/* Input area for the chatbox */
-.chat-input {
-    display: flex;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-}
-
-/* Textarea for typing messages */
-.chat-input textarea {
-    flex-grow: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    resize: none;
-}
-
-/* Send button */
-.chat-input span {
-    background: #007BFF;
-    color: white;
-    padding: 10px;
-    margin-left: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-/* Copy button for responses */
-.copy-btn {
-    margin-left: 10px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-/* Error message styling */
-.error {
-    color: red;
-}
-
-/* Focus effect for textarea */
-textarea:focus {
-    outline: none;
 }
