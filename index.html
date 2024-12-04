@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D Modeling Interface</title>
     <style>
+        /* General body styling */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -15,84 +16,104 @@
         header {
             background-color: #333;
             color: white;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
         }
+        
+        /* Main content layout */
         .main-content {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-        .toolbar {
-            width: 100%;
-            background-color: #444;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .toolbar button {
-            background-color: #666;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            cursor: pointer;
-        }
-        .toolbar button:hover {
-            background-color: #888;
-        }
+        
+        /* Sidebar styling for tool palette, timeline, and property editor */
         .sidebar {
             width: 250px;
             background-color: #f4f4f4;
             padding: 10px;
             height: 100%;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        .tool-palette {
-            background-color: #e0e0e0;
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .timeline {
-            background-color: #e0e0e0;
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        .property-editor {
+        
+        /* Tool Palette and other sections in the sidebar */
+        .tool-palette, .timeline, .property-editor {
             background-color: #e0e0e0;
             padding: 10px;
             border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
+        
+        /* Buttons for tool palette and other sections */
+        button {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background-color: #888;
+        }
+
+        /* Viewport for 3D model viewing */
         .viewport {
             flex: 1;
             background-color: #000;
             position: relative;
             color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .viewport canvas {
             width: 100%;
             height: 100%;
             border: 1px solid #444;
         }
+
+        /* Footer with toolbar */
         .footer {
             background-color: #333;
             color: white;
-            text-align: center;
             padding: 10px;
         }
+        
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Layout adjustment for small screens */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+            }
+        }
+
     </style>
 </head>
 <body>
 
 <header>
-    <h1>3D Modeling and Animation Interface</h1>
+    <h1>Prisma 3D - 3D Modeling & Animation</h1>
 </header>
 
+<!-- Main content layout -->
 <div class="main-content">
     <!-- Sidebar with tool palette, timeline, and property editor -->
     <div class="sidebar">
+        <!-- Tool Palette -->
         <div class="tool-palette">
             <h3>Tool Palette</h3>
             <button>Box</button>
@@ -102,32 +123,44 @@
             <button>Extrude</button>
             <button>Bevel</button>
             <button>Sculpting</button>
+            <button>Modifiers</button>
         </div>
+        
+        <!-- Timeline (appears in Animation mode) -->
         <div class="timeline">
             <h3>Timeline</h3>
             <p>Keyframes and animation controls.</p>
+            <button>Play</button>
+            <button>Stop</button>
+            <button>Set Keyframe</button>
         </div>
+        
+        <!-- Property Editor -->
         <div class="property-editor">
             <h3>Property Editor</h3>
-            <p>Position, rotation, scale, material settings.</p>
+            <p>Position, Rotation, Scale, Materials</p>
+            <button>Edit Position</button>
+            <button>Edit Rotation</button>
+            <button>Edit Scale</button>
+            <button>Edit Material</button>
         </div>
     </div>
 
-    <!-- Main viewport area -->
+    <!-- Main Viewport area -->
     <div class="viewport">
         <canvas id="viewportCanvas"></canvas>
         <div class="viewport-overlay">3D View</div>
     </div>
 </div>
 
-<!-- Footer with toolbar options -->
+<!-- Footer with Toolbar for additional controls -->
 <div class="footer">
     <div class="toolbar">
         <button>Modeling</button>
         <button>Animation</button>
         <button>Rendering</button>
-        <button>Texturing</button>
         <button>Import/Export</button>
+        <button>Other Tools</button>
     </div>
 </div>
 
